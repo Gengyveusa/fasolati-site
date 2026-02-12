@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fasolati</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --t:#00e8cc;--g:#e0b44a;
+  --bg:#050508;
+  --tx:rgba(255,255,255,.65);--txd:rgba(255,255,255,.35);--w:rgba(255,255,255,.92);
+  --lytica:#FF6B6B;--lithos:#6B9FFF;--loria:#4AEDC4;--maxoral:#C59AFF;--fasolati-green:#A8C686;
+  --font:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'SF Mono','Fira Code','Consolas',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:var(--font);overflow-x:hidden;
+  background-image:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(0,232,204,.025),transparent),
+                    radial-gradient(ellipse 60% 40% at 80% 100%,rgba(224,180,74,.018),transparent);
+  background-attachment:fixed}
+::selection{background:var(--t);color:#000}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(0,232,204,.25);border-radius:2px}
+a{color:inherit;text-decoration:none}
+
+/* ── NAV ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:transparent;transition:background .4s}
+.nav.scrolled{background:rgba(5,5,8,.92)}
+.nav-logo{font-size:.75rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t);opacity:.8;text-decoration:none;transition:opacity .3s;cursor:pointer;flex-shrink:0}
+.nav-logo:hover{opacity:1}
+.nav-logo sup{font-size:.5em;vertical-align:super;color:rgba(255,255,255,.3)}
+
+.hamburger{width:30px;height:22px;position:relative;cursor:pointer;z-index:2100;display:flex;flex-direction:column;justify-content:space-between;flex-shrink:0}
+.hamburger span{display:block;width:100%;height:2px;border-radius:2px;transition:all .4s cubic-bezier(.16,1,.3,1);transform-origin:center}
+@keyframes barWave1{0%,100%{background:var(--t);box-shadow:0 0 6px rgba(0,232,204,.3)}33%{background:var(--g);box-shadow:0 0 6px rgba(224,180,74,.3)}66%{background:var(--t);box-shadow:0 0 4px rgba(0,232,204,.15)}}
+@keyframes barWave2{0%,100%{background:var(--g);box-shadow:0 0 6px rgba(224,180,74,.3)}33%{background:var(--t);box-shadow:0 0 6px rgba(0,232,204,.3)}66%{background:var(--g);box-shadow:0 0 4px rgba(224,180,74,.15)}}
+@keyframes barWave3{0%,100%{background:var(--t);box-shadow:0 0 4px rgba(0,232,204,.15)}33%{background:var(--t);box-shadow:0 0 6px rgba(0,232,204,.3)}66%{background:var(--g);box-shadow:0 0 6px rgba(224,180,74,.3)}}
+.hamburger span:nth-child(1){animation:barWave1 3s ease-in-out infinite}
+.hamburger span:nth-child(2){animation:barWave2 3s ease-in-out infinite}
+.hamburger span:nth-child(3){animation:barWave3 3s ease-in-out infinite}
+.hamburger.open span{animation:none!important;background:var(--w)!important;box-shadow:none!important}
+.hamburger.open span:nth-child(1){transform:translateY(10px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.hamburger.open span:nth-child(3){transform:translateY(-10px) rotate(-45deg)}
+
+/* ── TOP NAV DROPDOWNS ── */
+.topnav{display:flex;align-items:center;gap:2px;flex:1;justify-content:center}
+.topnav-item{position:relative}
+.topnav-trigger{display:flex;align-items:center;gap:4px;padding:6px 12px;font-size:.7rem;font-weight:600;letter-spacing:.5px;color:rgba(255,255,255,.45);cursor:pointer;border:none;background:none;font-family:var(--font);transition:color .3s;text-transform:uppercase;white-space:nowrap}
+.topnav-trigger:hover{color:var(--w)}
+.topnav-trigger svg{width:8px;height:8px;opacity:.4;transition:transform .3s,opacity .3s}
+.topnav-item.active .topnav-trigger{color:var(--w)}
+.topnav-item.active .topnav-trigger svg{transform:rotate(180deg);opacity:.7}
+
+/* Dropdown panels — fixed to viewport, positioned by JS */
+.topnav-drop{position:fixed;min-width:260px;padding:16px 0;background:rgba(8,8,14,.97);border:1px solid rgba(255,255,255,.08);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 1px rgba(255,255,255,.06);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s cubic-bezier(.16,1,.3,1);z-index:9999;transform:translateY(6px);visibility:hidden}
+.topnav-drop.show{opacity:1;pointer-events:auto;transform:translateY(0);visibility:visible}
+.dd-item{display:block;padding:8px 20px;cursor:pointer;transition:background .2s}
+.dd-item:hover{background:rgba(255,255,255,.05)}
+.dd-title{font-size:.78rem;font-weight:600;color:var(--w);letter-spacing:-.1px;line-height:1.3}
+.dd-desc{font-size:.62rem;color:var(--txd);margin-top:1px;line-height:1.5}
+.dd-divider{height:1px;background:rgba(255,255,255,.04);margin:8px 20px}
+.dd-tag{font-size:.5rem;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--txd);padding:4px 20px 6px;opacity:.5}
+
+/* Menu overlay */
+.menu-overlay{position:fixed;inset:0;z-index:2000;background:rgba(5,5,8,.97);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
+  opacity:0;pointer-events:none;transition:opacity .5s cubic-bezier(.16,1,.3,1);display:flex;align-items:center;justify-content:center}
+.menu-overlay.open{opacity:1;pointer-events:auto}
+.menu-inner{display:flex;gap:64px;max-width:900px;width:100%;padding:0 40px}
+.menu-col{flex:1}
+.menu-col-label{font-size:.55rem;letter-spacing:4px;text-transform:uppercase;font-weight:600;margin-bottom:20px;opacity:.3}
+.menu-col-label.tn{color:var(--t)}.menu-col-label.gn{color:var(--g)}
+.menu-item{display:block;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:all .35s cubic-bezier(.16,1,.3,1);transform:translateX(0)}
+.menu-item:last-child{border-bottom:none}
+.menu-item:hover{transform:translateX(8px)}
+.menu-item:hover .mi-title{color:var(--w)}
+.mi-title{font-size:1.05rem;font-weight:600;color:rgba(255,255,255,.6);letter-spacing:-.3px;transition:color .3s;line-height:1.3}
+.mi-desc{font-size:.7rem;color:var(--txd);margin-top:2px;line-height:1.5}
+.menu-overlay .menu-item{opacity:0;transform:translateY(12px);transition:opacity .4s,transform .4s cubic-bezier(.16,1,.3,1)}
+.menu-overlay.open .menu-item{opacity:1;transform:translateY(0)}
+.menu-overlay.open .menu-item:nth-child(1){transition-delay:.06s}
+.menu-overlay.open .menu-item:nth-child(2){transition-delay:.1s}
+.menu-overlay.open .menu-item:nth-child(3){transition-delay:.14s}
+.menu-overlay.open .menu-item:nth-child(4){transition-delay:.18s}
+.menu-overlay.open .menu-item:nth-child(5){transition-delay:.22s}
+.menu-overlay.open .menu-col:nth-child(2) .menu-item:nth-child(1){transition-delay:.1s}
+.menu-overlay.open .menu-col:nth-child(2) .menu-item:nth-child(2){transition-delay:.14s}
+.menu-overlay.open .menu-col:nth-child(2) .menu-item:nth-child(3){transition-delay:.18s}
+.menu-overlay.open .menu-col:nth-child(2) .menu-item:nth-child(4){transition-delay:.22s}
+
+/* ── MOTION ── */
+.mo{opacity:0;transform:translateY(40px);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
+.mo.v{opacity:1;transform:none}
+.mo-d1{transition-delay:.12s}.mo-d2{transition-delay:.24s}.mo-d3{transition-delay:.36s}.mo-d4{transition-delay:.48s}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:50px;font-size:.82rem;font-weight:600;letter-spacing:.5px;transition:all .4s cubic-bezier(.16,1,.3,1);border:none;cursor:pointer}
+.bp{background:var(--t);color:#050508}
+.bp:hover{box-shadow:0 0 40px rgba(0,232,204,.3);transform:translateY(-2px) scale(1.02)}
+.bs{color:var(--g);border:1px solid rgba(224,180,74,.25);background:transparent}
+.bs:hover{border-color:var(--g);background:rgba(224,180,74,.06);transform:translateY(-2px)}
+
+/* ── PARTICLE CANVAS ── */
+#particle-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.hero,.map-section,.fs{position:relative;z-index:1}
+footer{position:relative;z-index:1}
+.hero::before{content:'';position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(0,232,204,.04) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-30%;right:-10%;width:600px;height:600px;background:radial-gradient(circle,rgba(224,180,74,.025) 0%,transparent 70%);pointer-events:none}
+
+/* ══════════════════ HERO ══════════════════ */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 32px;position:relative;overflow:hidden}
+.h-label{font-size:.6rem;letter-spacing:6px;text-transform:uppercase;color:var(--t);font-weight:600;margin-bottom:24px;opacity:.6}
+.h1{font-size:clamp(4rem,12vw,9rem);font-weight:800;letter-spacing:-5px;line-height:.95;margin-bottom:28px;
+  background:linear-gradient(135deg,var(--t) 20%,var(--g) 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.h1 sup{font-size:.3em;vertical-align:super;letter-spacing:0;-webkit-text-fill-color:rgba(255,255,255,.35)}
+.h-tag{font-size:clamp(1rem,2vw,1.4rem);color:var(--w);font-weight:300;max-width:600px;margin:0 auto 20px;line-height:1.6;font-style:italic;opacity:.7}
+.h-sub{font-size:clamp(.85rem,1.2vw,.95rem);color:var(--tx);max-width:580px;margin:0 auto 16px;line-height:2}
+.h-mic{font-size:.7rem;color:var(--t);letter-spacing:3px;text-transform:uppercase;font-weight:600;margin-bottom:36px;opacity:.5}
+.h-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+
+/* ══════════════════ FRAMEWORK TREE ══════════════════ */
+.map-section{padding:80px 32px 100px;position:relative;z-index:1}
+.map-section::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:200px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent)}
+.fw{max-width:720px;margin:0 auto}
+.fw-head{text-align:center;margin-bottom:32px}
+.fw-title{font-size:clamp(1.1rem,2vw,1.4rem);font-weight:700;color:var(--w);letter-spacing:-.5px;margin-bottom:6px}
+.fw-sub{font-size:.7rem;color:var(--txd);letter-spacing:1.5px;text-transform:uppercase}
+
+.nd-h{display:flex;align-items:center;gap:12px;padding:12px 16px;border:1px solid rgba(255,255,255,.06);border-radius:8px;cursor:pointer;transition:all .25s;background:transparent;width:100%;text-align:left;color:inherit;font-family:inherit;margin-bottom:4px}
+.nd-h:hover,.nd-h.open{border-color:rgba(0,232,204,.2);background:rgba(255,255,255,.03)}
+.nd-num{font-size:13px;font-weight:800;font-family:var(--mono);letter-spacing:-.5px;opacity:.65;width:24px;flex-shrink:0}
+.nd-lab{font-size:15px;font-weight:700;color:var(--w);letter-spacing:-.3px;flex:1}
+.nd-chev{font-size:18px;opacity:.4;transition:transform .25s}
+.nd-h.open .nd-chev{transform:rotate(90deg)}
+
+.br{position:relative;padding-left:20px;margin-bottom:6px}
+.br-line{position:absolute;left:0;top:0;bottom:0;width:1px;background:rgba(255,255,255,.06)}
+.br:last-child .br-line{bottom:50%}
+.br-tick{position:absolute;left:0;top:14px;width:16px;height:1px;background:rgba(255,255,255,.06)}
+.br-name{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:6px 0 8px;opacity:.75}
+
+.pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:7px 12px;color:var(--w);font-size:12.5px;font-family:var(--mono);cursor:pointer;text-align:left;width:100%;line-height:1.5;transition:all .2s;margin-bottom:2px}
+.pill:hover{border-color:rgba(0,232,204,.2);background:rgba(255,255,255,.04)}
+.pill.open{border-color:rgba(0,232,204,.2);background:rgba(255,255,255,.04);border-radius:6px 6px 0 0}
+.pill-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;transition:all .2s;background:rgba(255,255,255,.25)}
+.pill-plus{font-size:10px;opacity:.4;transition:all .2s;flex-shrink:0}
+.pill.open .pill-plus{opacity:1;transform:rotate(45deg)}
+.pill-exp{background:rgba(0,232,204,.03);border:1px solid rgba(0,232,204,.1);border-top:none;border-radius:0 0 6px 6px;padding:14px 16px;font-size:13px;line-height:1.85;color:var(--tx);margin-top:-1px;margin-bottom:2px;font-family:var(--font)}
+@keyframes pillFadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.pill-exp{animation:pillFadeIn .3s ease}
+
+/* ══════════════════ SECTIONS ══════════════════ */
+.fs{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 32px;position:relative}
+.fs::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:1px;height:80px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.05),transparent)}
+.fs-inner{max-width:700px;width:100%}
+.s-num{font-size:.55rem;letter-spacing:5px;text-transform:uppercase;font-weight:700;margin-bottom:14px;opacity:.4}
+.s-num.tn{color:var(--t)}.s-num.gn{color:var(--g)}
+.s-title{font-size:clamp(2rem,4.5vw,3.2rem);font-weight:800;color:var(--w);margin-bottom:24px;letter-spacing:-1.5px;line-height:1.15}
+.s-intro{font-size:clamp(.9rem,1.3vw,1.05rem);color:var(--tx);line-height:2.1;margin-bottom:48px}
+
+.gl{background:rgba(255,255,255,.02);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.05);border-radius:16px;padding:32px;margin-bottom:20px;box-shadow:0 4px 20px rgba(0,0,0,.3);transition:border-color .4s,transform .4s cubic-bezier(.16,1,.3,1)}
+.gl:hover{border-color:rgba(255,255,255,.1);transform:translateY(-2px)}
+.mb{margin-bottom:12px;padding-left:18px;position:relative;font-size:.88rem;color:var(--tx);line-height:1.9}
+.mb:last-child{margin-bottom:0}
+.mb::before{content:'';position:absolute;left:0;top:12px;width:4px;height:4px;border-radius:50%;background:var(--t);opacity:.4}
+.mb.gd::before{background:var(--g)}
+.sub{margin-top:28px;padding:28px 30px;border-radius:14px;border-left:2px solid rgba(224,180,74,.15);background:rgba(224,180,74,.015)}
+.sub h3{font-size:1rem;font-weight:700;color:var(--g);margin-bottom:6px;letter-spacing:-.3px}
+.sub .sl{font-size:.85rem;color:var(--txd);margin-bottom:18px;line-height:1.9}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin:40px 0}
+.stat{text-align:center;padding:28px 12px;border-radius:16px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.04);transition:border-color .4s,transform .4s cubic-bezier(.16,1,.3,1)}
+.stat:hover{border-color:rgba(255,255,255,.08);transform:translateY(-2px)}
+.stat-n{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;letter-spacing:-2px;line-height:1}
+.stat-n.tc{color:var(--t)}.stat-n.gc{color:var(--g)}
+.stat-d{font-size:.72rem;color:var(--txd);margin-top:8px;line-height:1.5}
+
+.vg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:32px 0}
+.vc{padding:24px;border-radius:14px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.04);transition:border-color .4s}
+.vc:hover{border-color:rgba(0,232,204,.15)}
+.vc.gv:hover{border-color:rgba(224,180,74,.12)}
+.vc h4{font-size:.58rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--t);margin-bottom:8px;font-weight:600;opacity:.5}
+.vc.gv h4{color:var(--g)}
+.vc p{font-size:.82rem;color:var(--txd);line-height:1.75}
+
+.pipe{display:flex;align-items:stretch;gap:4px;margin:24px 0}
+.pi{flex:1;padding:20px 16px;text-align:center;border-radius:14px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.04)}
+.pi h4{font-size:.52rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--g);margin-bottom:6px;font-weight:600;opacity:.45}
+.pi p{font-size:.78rem;color:var(--txd);line-height:1.7}
+.pa{display:flex;align-items:center;color:rgba(255,255,255,.07);font-size:1rem;flex-shrink:0}
+
+.ni{padding:18px 22px;margin-bottom:10px;font-size:.88rem;line-height:1.85;border-radius:14px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.04);transition:border-color .4s,transform .4s cubic-bezier(.16,1,.3,1)}
+.ni:hover{border-color:rgba(255,255,255,.1);transform:translateY(-2px)}
+.ni strong{font-weight:600}
+.tc{color:var(--t)}.gc{color:var(--g)}
+
+.cta-g{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:48px}
+.cta-c{padding:36px 32px;border-radius:16px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.04);transition:border-color .4s,transform .4s cubic-bezier(.16,1,.3,1)}
+.cta-c:hover{border-color:rgba(255,255,255,.1);transform:translateY(-2px)}
+.cta-c h3{font-size:1.05rem;font-weight:700;margin-bottom:10px;letter-spacing:-.3px}
+.cta-c.ct h3{color:var(--t)}.cta-c.cg h3{color:var(--g)}
+.cta-c p{font-size:.88rem;line-height:1.9}
+.tl{color:var(--t);font-size:.78rem;font-weight:600;letter-spacing:.3px;display:inline-flex;align-items:center;gap:6px;transition:color .3s,gap .3s}
+.tl:hover{color:var(--g);gap:10px}
+.tl::after{content:'→'}
+
+/* ══════════════════ PRODUCTS OVERLAY ══════════════════ */
+.products-overlay{position:fixed;inset:0;z-index:3000;background:rgba(5,5,8,.98);overflow-y:auto;
+  opacity:0;pointer-events:none;transition:opacity .5s cubic-bezier(.16,1,.3,1)}
+.products-overlay.open{opacity:1;pointer-events:auto}
+.products-close{position:fixed;top:20px;right:32px;z-index:3001;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--w);transition:all .3s}
+.products-close:hover{border-color:var(--t);background:rgba(0,232,204,.06)}
+.products-inner{max-width:800px;margin:0 auto;padding:80px 32px 120px}
+.products-overlay .p-hero{text-align:center;margin-bottom:80px}
+.products-overlay .p-hero h1{font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800;color:var(--w);letter-spacing:-2px;margin-bottom:12px}
+.products-overlay .p-hero p{font-size:.95rem;color:var(--tx);line-height:1.9;max-width:600px;margin:0 auto}
+.prod{margin-bottom:64px;padding-bottom:64px;border-bottom:1px solid rgba(255,255,255,.04)}.prod:last-child{border-bottom:none}
+.prod-head{display:flex;align-items:baseline;gap:16px;margin-bottom:8px;flex-wrap:wrap}
+.prod-name{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;letter-spacing:-1px}
+.prod-badge{font-size:.55rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:20px;border:1px solid;opacity:.7}
+.prod-tagline{font-size:.95rem;font-style:italic;color:var(--txd);margin-bottom:24px;line-height:1.6}
+.prod-body{font-size:.88rem;color:var(--tx);line-height:2;margin-bottom:28px}
+.prod-mechs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:28px 0}
+.prod-mech{padding:24px;border-radius:14px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.04)}
+.prod-mech h4{font-size:.6rem;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:8px;opacity:.6}
+.prod-mech p{font-size:.8rem;color:var(--txd);line-height:1.75}
+.prod-targets{margin:24px 0}
+.prod-targets h4{font-size:.6rem;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:12px;opacity:.5}
+.prod-targets .pt{display:flex;gap:10px;align-items:baseline;margin-bottom:6px;font-size:.82rem;color:var(--tx);line-height:1.7}
+.prod-targets .pt::before{content:'';width:4px;height:4px;border-radius:50%;flex-shrink:0;margin-top:8px}
+.tier-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:28px 0}
+.tier{padding:28px;border-radius:16px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.04);border-top:2px solid}
+.tier h4{font-size:1.1rem;font-weight:800;margin-bottom:4px}
+.tier .tier-badge{font-size:.5rem;letter-spacing:2px;text-transform:uppercase;font-weight:700;opacity:.5;margin-bottom:14px;display:block}
+.tier p{font-size:.82rem;color:var(--txd);line-height:1.8}
+.cascade{display:flex;flex-direction:column;gap:0;margin:32px 0}
+.cascade-step{display:flex;align-items:center;gap:20px;padding:20px 0}
+.cascade-num{font-size:1.4rem;font-weight:800;opacity:.2;flex-shrink:0;width:30px}
+.cascade-content h4{font-size:.9rem;font-weight:700;margin-bottom:2px}
+.cascade-content p{font-size:.78rem;color:var(--txd);line-height:1.6}
+.cascade-arrow{text-align:center;color:rgba(255,255,255,.08);font-size:1.2rem;padding:4px 0 4px 50px}
+
+/* ══════════════════ BLACK BOX OVERLAY ══════════════════ */
+.bb-overlay{position:fixed;inset:0;z-index:3000;background:rgba(5,5,8,.98);overflow-y:auto;
+  opacity:0;pointer-events:none;transition:opacity .5s cubic-bezier(.16,1,.3,1)}
+.bb-overlay.open{opacity:1;pointer-events:auto}
+.bb-close{position:fixed;top:20px;right:32px;z-index:3001;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--w);transition:all .3s}
+.bb-close:hover{border-color:var(--t);background:rgba(0,232,204,.06)}
+.bb-inner{max-width:760px;margin:0 auto;padding:80px 32px 120px}
+.bb-hero{text-align:center;margin-bottom:72px}
+.bb-hero h1{font-size:clamp(2.2rem,5vw,3.2rem);font-weight:800;color:var(--w);letter-spacing:-2px;margin-bottom:12px}
+.bb-hero .bb-accent{background:linear-gradient(135deg,var(--t),var(--g));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.bb-hero p{font-size:.95rem;color:var(--tx);line-height:1.9;max-width:560px;margin:0 auto}
+
+.bb-section{margin-bottom:64px;padding-bottom:64px;border-bottom:1px solid rgba(255,255,255,.04)}
+.bb-section:last-child{border-bottom:none}
+.bb-section-num{font-size:.5rem;letter-spacing:4px;text-transform:uppercase;font-weight:700;opacity:.4;margin-bottom:10px}
+.bb-section h2{font-size:clamp(1.5rem,3vw,2rem);font-weight:800;color:var(--w);letter-spacing:-1px;margin-bottom:8px;line-height:1.2}
+.bb-section .bb-tagline{font-size:.9rem;font-style:italic;color:var(--txd);margin-bottom:24px;line-height:1.6}
+.bb-section .bb-body{font-size:.88rem;color:var(--tx);line-height:2.1;margin-bottom:24px}
+
+.bb-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.bb-card{padding:24px;border-radius:14px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.04);transition:border-color .3s}
+.bb-card:hover{border-color:rgba(255,255,255,.1)}
+.bb-card h4{font-size:.6rem;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:8px;opacity:.6}
+.bb-card p{font-size:.8rem;color:var(--txd);line-height:1.8}
+
+.bb-flow{display:flex;align-items:stretch;gap:4px;margin:24px 0}
+.bb-flow-step{flex:1;padding:20px 16px;text-align:center;border-radius:14px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.04)}
+.bb-flow-step h4{font-size:.52rem;letter-spacing:2.5px;text-transform:uppercase;font-weight:600;margin-bottom:6px;opacity:.45}
+.bb-flow-step p{font-size:.78rem;color:var(--txd);line-height:1.7}
+.bb-flow-arrow{display:flex;align-items:center;color:rgba(255,255,255,.07);font-size:1rem;flex-shrink:0}
+
+.bb-trust{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:24px 0}
+.bb-trust-item{text-align:center;padding:28px 16px;border-radius:14px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.04)}
+.bb-trust-icon{font-size:1.6rem;margin-bottom:10px;opacity:.7}
+.bb-trust-item h4{font-size:.82rem;font-weight:700;color:var(--w);margin-bottom:6px}
+.bb-trust-item p{font-size:.75rem;color:var(--txd);line-height:1.7}
+
+.bb-timeline{position:relative;padding-left:28px;margin:24px 0}
+.bb-timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,var(--t),var(--g))}
+.bb-tl-item{position:relative;margin-bottom:28px}
+.bb-tl-item:last-child{margin-bottom:0}
+.bb-tl-item::before{content:'';position:absolute;left:-24px;top:6px;width:10px;height:10px;border-radius:50%;border:2px solid var(--t);background:var(--bg)}
+.bb-tl-item:nth-child(even)::before{border-color:var(--g)}
+.bb-tl-item h4{font-size:.88rem;font-weight:700;color:var(--w);margin-bottom:4px}
+.bb-tl-item p{font-size:.82rem;color:var(--tx);line-height:1.85}
+
+@media(max-width:700px){
+  .bb-cards,.bb-trust{grid-template-columns:1fr}
+  .bb-flow{flex-direction:column;gap:8px}
+  .bb-flow-arrow{display:none}
+  .bb-inner{padding:60px 20px 80px}
+}
+
+/* ══════════════════ PARTNER OVERLAY ══════════════════ */
+.partner-overlay{position:fixed;inset:0;z-index:3000;background:rgba(5,5,8,.98);overflow-y:auto;
+  opacity:0;pointer-events:none;transition:opacity .5s cubic-bezier(.16,1,.3,1)}
+.partner-overlay.open{opacity:1;pointer-events:auto}
+.partner-close{position:fixed;top:20px;right:32px;z-index:3001;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--w);transition:all .3s}
+.partner-close:hover{border-color:var(--t);background:rgba(0,232,204,.06)}
+.partner-inner{max-width:680px;margin:0 auto;padding:80px 32px 120px}
+.partner-hero{text-align:center;margin-bottom:56px}
+.partner-hero h1{font-size:clamp(2rem,5vw,3rem);font-weight:800;color:var(--w);letter-spacing:-2px;margin-bottom:12px}
+.partner-hero p{font-size:.92rem;color:var(--tx);line-height:1.9;max-width:520px;margin:0 auto}
+
+/* Role selector */
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:40px}
+.role-card{padding:20px;border-radius:12px;background:rgba(255,255,255,.015);border:2px solid rgba(255,255,255,.06);cursor:pointer;transition:all .3s;text-align:center}
+.role-card:hover{border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.03)}
+.role-card.selected{border-color:var(--t);background:rgba(0,232,204,.04)}
+.role-card.selected .role-icon{color:var(--t);opacity:1}
+.role-card.selected .role-name{color:var(--w)}
+.role-icon{font-size:1.4rem;margin-bottom:8px;opacity:.5;transition:all .3s}
+.role-name{font-size:.82rem;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:-.2px;transition:color .3s}
+.role-desc{font-size:.62rem;color:var(--txd);margin-top:3px;line-height:1.5}
+
+/* Form fields */
+.pf-group{margin-bottom:18px}
+.pf-label{display:block;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--txd);margin-bottom:6px}
+.pf-label .req{color:var(--t);margin-left:2px}
+.pf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pf-input,.pf-select,.pf-textarea{width:100%;padding:12px 16px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:var(--w);font-family:var(--font);font-size:.85rem;transition:border-color .3s,background .3s;outline:none}
+.pf-input::placeholder,.pf-textarea::placeholder{color:rgba(255,255,255,.2)}
+.pf-input:focus,.pf-select:focus,.pf-textarea:focus{border-color:rgba(0,232,204,.3);background:rgba(255,255,255,.05)}
+.pf-select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.3)' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer}
+.pf-select option{background:#0a0a10;color:var(--w)}
+.pf-textarea{min-height:100px;resize:vertical;line-height:1.7}
+
+.pf-submit{width:100%;padding:16px;border-radius:50px;border:none;background:var(--t);color:#050508;font-family:var(--font);font-size:.88rem;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .4s cubic-bezier(.16,1,.3,1);margin-top:8px}
+.pf-submit:hover{box-shadow:0 0 40px rgba(0,232,204,.3);transform:translateY(-2px) scale(1.01)}
+.pf-submit:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+
+.pf-note{font-size:.68rem;color:var(--txd);text-align:center;margin-top:14px;line-height:1.6}
+
+/* Success state */
+.partner-success{display:none;text-align:center;padding:60px 20px}
+.partner-success.show{display:block}
+.partner-form.hidden{display:none}
+.ps-icon{font-size:3rem;margin-bottom:20px;color:var(--t)}
+.ps-title{font-size:1.6rem;font-weight:800;color:var(--w);margin-bottom:10px;letter-spacing:-1px}
+.ps-body{font-size:.9rem;color:var(--tx);line-height:1.9;max-width:440px;margin:0 auto}
+
+/* Role-specific value props */
+.role-value{margin:0 0 32px;padding:20px 24px;border-radius:12px;border-left:2px solid var(--t);background:rgba(0,232,204,.02);display:none}
+.role-value.show{display:block}
+.role-value h4{font-size:.88rem;font-weight:700;color:var(--w);margin-bottom:6px}
+.role-value p{font-size:.8rem;color:var(--tx);line-height:1.8}
+
+@media(max-width:700px){
+  .role-grid{grid-template-columns:1fr}
+  .pf-row{grid-template-columns:1fr}
+  .partner-inner{padding:60px 20px 80px}
+}
+
+/* ══════════════════ SHOP OVERLAY ══════════════════ */
+.shop-overlay{position:fixed;inset:0;z-index:3000;background:rgba(5,5,8,.98);overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .5s cubic-bezier(.16,1,.3,1)}
+.shop-overlay.open{opacity:1;pointer-events:auto}
+.shop-close{position:fixed;top:20px;right:32px;z-index:3001;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--w);transition:all .3s}
+.shop-close:hover{border-color:var(--t);background:rgba(0,232,204,.06)}
+.shop-inner{max-width:760px;margin:0 auto;padding:80px 32px 120px}
+.shop-hero{text-align:center;margin-bottom:64px}
+.shop-hero h1{font-size:clamp(2rem,5vw,3rem);font-weight:800;color:var(--w);letter-spacing:-2px;margin-bottom:12px}
+.shop-hero p{font-size:.92rem;color:var(--tx);line-height:1.9;max-width:520px;margin:0 auto}
+
+.shop-product{margin-bottom:48px;padding:36px;border-radius:16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);transition:border-color .3s}
+.shop-product:hover{border-color:rgba(255,255,255,.1)}
+.shop-product.featured{border:2px solid rgba(74,237,196,.2);background:rgba(74,237,196,.02)}
+.sp-badge{display:inline-block;font-size:.5rem;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:16px}
+.sp-badge.live{background:rgba(74,237,196,.1);color:var(--loria)}
+.sp-badge.soon{background:rgba(255,255,255,.05);color:var(--txd)}
+.sp-name{font-size:clamp(1.4rem,3vw,1.8rem);font-weight:800;letter-spacing:-1px;margin-bottom:4px}
+.sp-tagline{font-size:.85rem;font-style:italic;color:var(--txd);margin-bottom:16px;line-height:1.6}
+.sp-body{font-size:.85rem;color:var(--tx);line-height:2;margin-bottom:20px}
+.sp-details{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:20px 0}
+.sp-detail{padding:16px;border-radius:10px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.04);text-align:center}
+.sp-detail h4{font-size:.5rem;letter-spacing:2px;text-transform:uppercase;font-weight:700;opacity:.5;margin-bottom:4px}
+.sp-detail p{font-size:.78rem;color:var(--txd);line-height:1.6}
+.sp-cta{display:flex;gap:12px;margin-top:24px;align-items:center}
+.sp-waitlist{display:flex;gap:8px;flex:1;max-width:400px}
+.sp-waitlist input{flex:1;padding:10px 14px;border-radius:50px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:var(--w);font-family:var(--font);font-size:.8rem;outline:none}
+.sp-waitlist input:focus{border-color:rgba(0,232,204,.3)}
+.sp-waitlist button{padding:10px 20px;border-radius:50px;border:none;background:rgba(255,255,255,.08);color:var(--w);font-family:var(--font);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .3s;white-space:nowrap}
+.sp-waitlist button:hover{background:rgba(0,232,204,.15)}
+
+/* ══════════════════ ABOUT OVERLAY ══════════════════ */
+.about-overlay{position:fixed;inset:0;z-index:3000;background:rgba(5,5,8,.98);overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .5s cubic-bezier(.16,1,.3,1)}
+.about-overlay.open{opacity:1;pointer-events:auto}
+.about-close{position:fixed;top:20px;right:32px;z-index:3001;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--w);transition:all .3s}
+.about-close:hover{border-color:var(--t);background:rgba(0,232,204,.06)}
+.about-inner{max-width:700px;margin:0 auto;padding:80px 32px 120px}
+.about-hero{text-align:center;margin-bottom:64px}
+.about-hero h1{font-size:clamp(2.2rem,5vw,3.2rem);font-weight:800;color:var(--w);letter-spacing:-2px;margin-bottom:16px}
+.about-hero p{font-size:.95rem;color:var(--tx);line-height:2;max-width:560px;margin:0 auto}
+
+.ab-section{margin-bottom:56px;padding-bottom:56px;border-bottom:1px solid rgba(255,255,255,.04)}
+.ab-section:last-child{border-bottom:none;padding-bottom:0}
+.ab-section-num{font-size:.5rem;letter-spacing:4px;text-transform:uppercase;font-weight:700;opacity:.4;margin-bottom:10px}
+.ab-section h2{font-size:clamp(1.4rem,3vw,1.8rem);font-weight:800;color:var(--w);letter-spacing:-1px;margin-bottom:16px;line-height:1.2}
+.ab-body{font-size:.88rem;color:var(--tx);line-height:2.1;margin-bottom:20px}
+
+.ab-timeline{position:relative;padding-left:28px;margin:28px 0}
+.ab-timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,var(--t),var(--g),var(--t))}
+.ab-tl{position:relative;margin-bottom:24px}
+.ab-tl:last-child{margin-bottom:0}
+.ab-tl::before{content:'';position:absolute;left:-24px;top:6px;width:10px;height:10px;border-radius:50%;border:2px solid var(--t);background:var(--bg)}
+.ab-tl:nth-child(even)::before{border-color:var(--g)}
+.ab-tl h4{font-size:.82rem;font-weight:700;color:var(--w);margin-bottom:3px}
+.ab-tl .ab-year{font-size:.55rem;letter-spacing:2px;text-transform:uppercase;font-weight:700;opacity:.4;margin-bottom:4px;display:block}
+.ab-tl p{font-size:.82rem;color:var(--tx);line-height:1.85}
+
+.ab-values{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.ab-val{padding:24px;border-radius:14px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.04)}
+.ab-val h4{font-size:.88rem;font-weight:700;color:var(--w);margin-bottom:6px}
+.ab-val p{font-size:.8rem;color:var(--txd);line-height:1.8}
+
+/* ══════════════════ EMBED OVERLAYS ══════════════════ */
+.embed-overlay{position:fixed;inset:0;z-index:3000;background:rgba(5,5,8,.98);opacity:0;pointer-events:none;transition:opacity .5s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column}
+.embed-overlay.open{opacity:1;pointer-events:auto}
+.embed-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.embed-title{font-size:.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t)}
+.embed-close{width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--w);transition:all .3s}
+.embed-close:hover{border-color:var(--t);background:rgba(0,232,204,.06)}
+.embed-frame{flex:1;border:none;width:100%;background:var(--bg)}
+
+@media(max-width:700px){
+  .sp-details{grid-template-columns:1fr}
+  .sp-cta{flex-direction:column}
+  .sp-waitlist{max-width:100%}
+  .ab-values{grid-template-columns:1fr}
+  .shop-inner,.about-inner{padding:60px 20px 80px}
+}
+
+footer{position:relative;z-index:1;text-align:center;padding:60px 32px;font-size:.6rem;color:var(--txd);letter-spacing:2px;text-transform:uppercase}
+
+/* Topnav responsive — compress at narrow widths */
+@media(max-width:1100px){
+  .topnav-trigger{padding:6px 8px;font-size:.6rem;letter-spacing:.3px}
+}
+@media(max-width:900px){
+  .topnav-trigger{padding:5px 6px;font-size:.55rem;letter-spacing:.2px}
+  .topnav-trigger svg{width:6px;height:6px}
+}
+@media(max-width:700px){
+  .topnav{overflow-x:auto;gap:0;justify-content:flex-start;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;mask-image:linear-gradient(to right,transparent,black 4px,black calc(100% - 4px),transparent);-webkit-mask-image:linear-gradient(to right,transparent,black 4px,black calc(100% - 4px),transparent)}
+  .topnav::-webkit-scrollbar{display:none}
+  .topnav-trigger{font-size:.5rem;padding:4px 5px;letter-spacing:.1px;gap:2px}
+  .topnav-trigger svg{width:5px;height:5px}
+  .topnav-drop{min-width:200px}
+}
+@media(max-width:480px){
+  .nav{padding:14px 16px;gap:8px}
+  .topnav-trigger{font-size:.45rem;padding:3px 4px}
+  .nav-logo{font-size:.65rem;letter-spacing:1.5px}
+  .menu-inner{flex-direction:column;gap:36px;padding:0 24px}
+  .hero{padding:60px 20px;min-height:auto}
+  .map-section{padding:40px 20px 60px}
+  .fw{padding:0}
+  .fs{min-height:auto;padding:60px 20px}
+  .stats,.vg{grid-template-columns:1fr}
+  .pipe{flex-direction:column;gap:8px}
+  .pa{display:none}
+  .cta-g,.prod-mechs,.tier-grid{grid-template-columns:1fr}
+  .h-btns{flex-direction:column;align-items:center}
+  .btn{width:100%;max-width:300px;justify-content:center}
+  .products-inner{padding:60px 20px 80px}
+}
+</style>
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/243149587.js"></script>
+<!-- Open Graph / SEO -->
+<meta name="description" content="Fasolati — AI-driven platform treating mouth and gut as origin nodes of systemic inflammation. Oral therapeutics, gut repair, and biomarker-driven protocols in one operating system.">
+<meta property="og:title" content="Fasolati™ — The Inflammation Operating System">
+<meta property="og:description" content="AI-driven oral-gut-systemic health platform. Wiring therapeutics, biomarkers, and protocols into a single engine for chronic disease prevention.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://fasolati.com">
+<link rel="canonical" href="https://fasolati.com">
+</head>
+<body>
+
+<canvas id="particle-canvas"></canvas>
+
+<!-- ═══ NAV ═══ -->
+<nav class="nav" id="nav">
+  <span class="nav-logo" id="nav-logo">Fasolati<sup>™</sup></span>
+
+  <div class="topnav" id="topnav">
+
+    <div class="topnav-item" data-dd="problem">
+      <button class="topnav-trigger">Problem <svg viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></button>
+      <div class="topnav-drop">
+        <div class="dd-item" data-scroll="s1" data-ddclose><div class="dd-title">The Inflammation Case</div><div class="dd-desc">3 in 5 deaths trace to chronic inflammation</div></div>
+        <div class="dd-item" data-open-bb><div class="dd-title" style="color:var(--t)">Inside the Black Box</div><div class="dd-desc">How SciAgent AI works, learns, and verifies</div></div>
+        <div class="dd-item" data-scroll="framework" data-ddclose><div class="dd-title">Systemic Health Framework</div><div class="dd-desc">The full 5-node framework with clinical depth</div></div>
+        <div class="dd-divider"></div>
+        <div class="dd-item" data-scroll="s2" data-ddclose><div class="dd-title">Origin Node: The Mouth</div><div class="dd-desc">Periodontal pocket as systemic portal of entry</div></div>
+        <div class="dd-item" data-scroll="s3" data-ddclose><div class="dd-title">Origin Node: The Gut</div><div class="dd-desc">Barrier failure, LPS translocation, neurodegeneration</div></div>
+      </div>
+    </div>
+
+    <div class="topnav-item" data-dd="solutions">
+      <button class="topnav-trigger">Solutions <svg viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></button>
+      <div class="topnav-drop">
+        <div class="dd-tag" style="color:var(--t)">Oral Therapeutics</div>
+        <div class="dd-item" data-open-products="lytica"><div class="dd-title" style="color:var(--lytica)">Lytica™</div><div class="dd-desc">Enzyme + phage biofilm intervention</div></div>
+        <div class="dd-item" data-open-products="lithos"><div class="dd-title" style="color:var(--lithos)">Lithos™</div><div class="dd-desc">Biomimetic enamel regeneration (Mata ELR)</div></div>
+        <div class="dd-item" data-open-products="loria"><div class="dd-title" style="color:var(--loria)">Loria™</div><div class="dd-desc">Dual-weight HA mucosal barrier system</div></div>
+        <div class="dd-divider"></div>
+        <div class="dd-tag" style="color:var(--g)">Gut Restoration</div>
+        <div class="dd-item" data-scroll="s3" data-ddclose><div class="dd-title" style="color:var(--g)">Magisnat · Biolumen · Monch Monch</div><div class="dd-desc">Anti-inflammatory nutraceuticals, prebiotics, metabolic snacks</div></div>
+        <div class="dd-divider"></div>
+        <div class="dd-tag">Platform</div>
+        <div class="dd-item" data-scroll="s4" data-ddclose><div class="dd-title">Fasolati Engine</div><div class="dd-desc">Three-vector scoring + SciAgent AI protocols</div></div>
+      </div>
+    </div>
+
+    <div class="topnav-item" data-dd="science">
+      <button class="topnav-trigger">Science <svg viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></button>
+      <div class="topnav-drop">
+        <div class="dd-item" data-open-embed="deepdive"><div class="dd-title">Fasolati Deep Dive</div><div class="dd-desc">Comprehensive technical overview of the platform</div></div>
+        <div class="dd-item" data-open-products="lytica"><div class="dd-title">Biofilm Science</div><div class="dd-desc">Enzymatic disruption, phage targeting, EPS matrix</div></div>
+        <div class="dd-item" data-open-products="lithos"><div class="dd-title">Enamel Regeneration</div><div class="dd-desc">Mata ELR technology, epitaxial crystal growth</div></div>
+        <div class="dd-divider"></div>
+        <div class="dd-item" data-scroll="s1" data-ddclose><div class="dd-title">Inflammation Thesis</div><div class="dd-desc">hs-CRP, the 3-in-5 statistic, origin node theory</div></div>
+      </div>
+    </div>
+
+    <div class="topnav-item" data-dd="clinicians">
+      <button class="topnav-trigger">For Clinicians <svg viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></button>
+      <div class="topnav-drop">
+        <div class="dd-item" data-open-products="lytica"><div class="dd-title" style="color:var(--maxoral)">Maxoral™ Professional Line</div><div class="dd-desc">Rx-grade formulations for in-office application</div></div>
+        <div class="dd-item" data-open-embed="engine"><div class="dd-title">Launch Engine UI</div><div class="dd-desc">Biomarker dashboard and protocol management</div></div>
+        <div class="dd-divider"></div>
+        <div class="dd-item" data-open-partner><div class="dd-title">Pilot Program</div><div class="dd-desc">Wire oral exams + gut protocols into one engine</div></div>
+        <div class="dd-item" data-open-products="fasolati-tier"><div class="dd-title">Distribution & Channels</div><div class="dd-desc">DSO integration, Henry Schein, Patterson, Benco</div></div>
+      </div>
+    </div>
+
+    <div class="topnav-item" data-dd="resources">
+      <button class="topnav-trigger">Resources <svg viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></button>
+      <div class="topnav-drop">
+        <div class="dd-item" data-open-embed="deepdive"><div class="dd-title">Deep Dive Document</div><div class="dd-desc">Full technical and business overview</div></div>
+        <div class="dd-item" data-open-embed="engine"><div class="dd-title">Fasolati Engine UI</div><div class="dd-desc">Interactive health dashboard prototype</div></div>
+        <div class="dd-divider"></div>
+        <div class="dd-item" data-scroll="s5" data-ddclose><div class="dd-title">Node Network Map</div><div class="dd-desc">The full product and data architecture</div></div>
+        <div class="dd-item" data-scroll="framework" data-ddclose><div class="dd-title">Framework Explorer</div><div class="dd-desc">Interactive collapsible mind map</div></div>
+      </div>
+    </div>
+
+    <div class="topnav-item" data-dd="affiliate">
+      <button class="topnav-trigger">Affiliate <svg viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></button>
+      <div class="topnav-drop">
+        <div class="dd-item" data-open-partner><div class="dd-title">Partner Program</div><div class="dd-desc">Earn commissions on Fasolati ecosystem referrals</div></div>
+        <div class="dd-item" data-open-partner><div class="dd-title">For Investors</div><div class="dd-desc">Scale the node network across chronic disease prevention</div></div>
+        <div class="dd-divider"></div>
+        <div class="dd-item" data-open-partner><div class="dd-title">DSO Partnerships</div><div class="dd-desc">Integrate the therapeutic cascade into your practice network</div></div>
+      </div>
+    </div>
+
+    <div class="topnav-item" data-dd="shop">
+      <button class="topnav-trigger">Shop <svg viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></button>
+      <div class="topnav-drop" style="min-width:220px">
+        <div class="dd-item" data-open-shop><div class="dd-title" style="color:var(--loria)">Loria™ Daily Rinse</div><div class="dd-desc">● Available now — order or subscribe</div></div>
+        <div class="dd-divider"></div>
+        <div class="dd-item" data-open-shop><div class="dd-title">Lithos™ · Lytica™ · Gut Stack</div><div class="dd-desc">Coming soon — join the waitlist</div></div>
+        <div class="dd-item" data-open-shop><div class="dd-title">Fasolati Engine</div><div class="dd-desc">Beta access — request invite</div></div>
+      </div>
+    </div>
+
+    <div class="topnav-item" data-dd="about">
+      <button class="topnav-trigger">About <svg viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></button>
+      <div class="topnav-drop" style="min-width:220px">
+        <div class="dd-item" data-open-about><div class="dd-title">Our Story</div><div class="dd-desc">From the OR to the operating system</div></div>
+        <div class="dd-item" data-open-about><div class="dd-title">Mission & Vision</div><div class="dd-desc">Make inflammation visible and preventable</div></div>
+        <div class="dd-item" data-open-about><div class="dd-title">Timeline</div><div class="dd-desc">2006 → 2026 and beyond</div></div>
+        <div class="dd-divider"></div>
+        <div class="dd-item" data-open-partner><div class="dd-title">Contact</div><div class="dd-desc">Clinicians, researchers, partners, investors</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="menu-overlay" id="menu-overlay">
+  <div class="menu-inner">
+    <div class="menu-col">
+      <div class="menu-col-label tn">Products & Platform</div>
+      <div class="menu-item" data-products="lytica"><div class="mi-title">Professional Products</div><div class="mi-desc">Lytica, Lithos, Loria — clinician-grade oral therapeutics</div></div>
+      <div class="menu-item" data-products="fasolati-tier"><div class="mi-title">Everyday Home Products</div><div class="mi-desc">OTC-grade daily maintenance for mouth and gut health</div></div>
+      <div class="menu-item" data-scroll="s4" data-close><div class="mi-title">Health Dashboard</div><div class="mi-desc">Biomarker tracking, three-vector scoring, and SciAgent</div></div>
+      <div class="menu-item" data-close onclick="openEmbed('engine')"><div class="mi-title">Launch Engine UI</div><div class="mi-desc">Open the interactive Fasolati Engine interface</div></div>
+    </div>
+    <div class="menu-col">
+      <div class="menu-col-label gn">Learn & Connect</div>
+      <div class="menu-item" data-bb="open"><div class="mi-title">Inside the Black Box</div><div class="mi-desc">How SciAgent AI works, learns, and verifies — transparency for patients</div></div>
+      <div class="menu-item" data-scroll="s5" data-close><div class="mi-title">Node Network</div><div class="mi-desc">Full map of the Fasolati product and data architecture</div></div>
+      <div class="menu-item" data-close onclick="openEmbed('deepdive')"><div class="mi-title">Deep Dive</div><div class="mi-desc">Comprehensive Fasolati technical overview</div></div>
+      <div class="menu-item" data-partner="open"><div class="mi-title">Partner With Us</div><div class="mi-desc">For clinicians, researchers, strategic partners, and investors</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PRODUCTS OVERLAY ═══ -->
+<div class="products-overlay" id="products-overlay">
+  <button class="products-close" id="products-close">✕</button>
+  <div class="products-inner">
+    <div class="p-hero">
+      <h1>The Fasolati Therapeutic Platform</h1>
+      <p>Three product lines. Three mechanisms. One unified architecture. A surgeon‑engineered system that treats the mouth as a controllable origin node of systemic inflammation.</p>
+    </div>
+    <div class="prod" id="p-lytica">
+      <div class="prod-head"><span class="prod-name" style="color:var(--lytica)">Lytica</span><span class="prod-badge" style="color:var(--lytica);border-color:rgba(255,107,107,.3)">Precision Ecological Rescue</span></div>
+      <p class="prod-tagline">From Greek lysis — targeted dissolution. Hunt and eliminate. Spare everything else.</p>
+      <p class="prod-body">A two‑stage tray‑applied biofilm intervention system. Stage 1 (BREACH) uses hydrogen peroxide effervescence plus enzymatic matrix degradation — DNase I, Dispersin B, Proteinase K — to collapse biofilm architecture in 5–10 minutes. Stage 2 (HUNT) deploys bacteriophages targeting P. gingivalis, T. forsythia, and A. actinomycetemcomitans, plus recombinant endolysins and lactoferrin, delivered in a dual‑weight hyaluronic acid matrix for sustained contact and tissue support.</p>
+      <div class="prod-mechs">
+        <div class="prod-mech"><h4 style="color:var(--lytica)">Stage 1 — Breach</h4><p>H₂O₂ effervescence disrupts biofilm oxygen gradients. DNase I degrades extracellular DNA scaffold. Dispersin B hydrolyzes PNAG adhesin matrix. Proteinase K cleaves surface-bound adhesion proteins. Combined: 4.5 log colony reduction.</p></div>
+        <div class="prod-mech"><h4 style="color:var(--lytica)">Stage 2 — Hunt</h4><p>Species-specific bacteriophages bind exclusively to bacterial surface receptors. Recombinant endolysins degrade peptidoglycan from outside. Lactoferrin sequesters iron from pathogen metabolism. HA carrier ensures 4+ hours mucosal residence time.</p></div>
+      </div>
+      <div class="prod-targets"><h4 style="color:var(--lytica)">Clinical Targets</h4><div class="pt" style="--c:var(--lytica)"><span>Active periodontal disease — stages III and IV</span></div><div class="pt" style="--c:var(--lytica)"><span>Peri-implantitis — biofilm on titanium surfaces</span></div><div class="pt" style="--c:var(--lytica)"><span>Post-surgical infection control</span></div><div class="pt" style="--c:var(--lytica)"><span>Refractory cases non-responsive to SRP + antibiotics</span></div></div>
+    </div>
+    <div class="prod" id="p-lithos">
+      <div class="prod-head"><span class="prod-name" style="color:var(--lithos)">Lithos</span><span class="prod-badge" style="color:var(--lithos);border-color:rgba(107,159,255,.3)">Structural Regeneration</span></div>
+      <p class="prod-tagline">From Greek lithos — stone. What teeth are meant to be. Rebuild, don't just protect.</p>
+      <p class="prod-body">Built on Professor Alvaro Mata's elastin‑like recombinamer (ELR) technology from the University of Nottingham, published in Nature Communications (November 2025). Lithos drives epitaxial hydroxyapatite crystal growth in native enamel orientation — not amorphous mineral deposition, but organized crystallographic reconstruction from the lattice up.</p>
+      <div class="prod-mechs">
+        <div class="prod-mech"><h4 style="color:var(--lithos)">The Mata Technology</h4><p>Elastin-like recombinamers provide a protein scaffold that templates hydroxyapatite nucleation at the demineralized surface. Epitaxial growth — crystals form in the same orientation as native enamel prisms. Not a coating. True structural integration at the molecular level.</p></div>
+        <div class="prod-mech"><h4 style="color:var(--lithos)">Fasolati Integration</h4><p>Mata's ELR is the mineralization engine. Fasolati's dual-weight HA carrier is the delivery and mucosal integration layer. Lithos combines both: mineralization scaffold + bio-adhesive matrix for complete tooth reconstruction.</p></div>
+      </div>
+      <div class="prod-targets"><h4 style="color:var(--lithos)">Clinical Targets</h4><div class="pt"><span>Early caries — rebuild, don't fill</span></div><div class="pt"><span>Erosive tooth wear — acid damage reversal</span></div><div class="pt"><span>Post-whitening sensitivity — restore demineralized surface</span></div><div class="pt"><span>Hypomineralization (MIH) — developmental enamel defects</span></div><div class="pt"><span>Post-orthodontic white spot lesions</span></div></div>
+    </div>
+    <div class="prod" id="p-loria">
+      <div class="prod-head"><span class="prod-name" style="color:var(--loria)">Loria</span><span class="prod-badge" style="color:var(--loria);border-color:rgba(74,237,196,.3)">Molecular Purification</span></div>
+      <p class="prod-tagline">From Latin luere — to purify. The original Fasolati formulation. Physical barrier, heal, hydrate, and hold.</p>
+      <p class="prod-body">Loria replaces chlorhexidine's indiscriminate kill with intelligent ecological remodeling. Biofilm‑dispersing enzymes dismantle the extracellular polysaccharide scaffold. Dual‑weight hyaluronic acid creates a physical barrier while driving fibroblast proliferation by 35% within 7 days. Castor oil reduces IL‑1β and TNF‑α while reinforcing pellicle lipid barriers. Bio‑adhesive film formation via pullulan and PVP ensures hours of therapeutic residence.</p>
+      <div class="prod-mechs">
+        <div class="prod-mech"><h4 style="color:var(--loria)">Barrier + Heal</h4><p>High MW HA forms protective scaffolding on mucosal surface. Low MW HA penetrates deeper tissue, stimulates fibroblast proliferation, drives re-epithelialization (8/9 wounds healed in 24 hours vs 0/9 saline).</p></div>
+        <div class="prod-mech"><h4 style="color:var(--loria)">Hydrate + Hold</h4><p>Dual-weight HA retains moisture at mucosal surfaces. Pullulan + PVP create cross-linked adhesion network for extended therapeutic residence. CPC at 0.05% provides selective antimicrobial baseline.</p></div>
+      </div>
+      <div class="prod-targets"><h4 style="color:var(--loria)">Clinical Targets</h4><div class="pt"><span>Daily oral ecology maintenance — chlorhexidine replacement</span></div><div class="pt"><span>Biofilm management — prevent recolonization after treatment</span></div><div class="pt"><span>Post-surgical mucosal healing support</span></div><div class="pt"><span>Xerostomia (dry mouth) — sustained hydration</span></div></div>
+    </div>
+    <div class="prod" id="p-fasolati-tier">
+      <div class="prod-head"><span class="prod-name" style="color:var(--w)">Distribution Architecture</span></div>
+      <p class="prod-tagline">Maxoral and Fasolati are not products. They're distribution tiers that determine formulation strength, regulatory class, and channel strategy.</p>
+      <div class="tier-grid">
+        <div class="tier" style="border-top-color:var(--maxoral)"><h4 style="color:var(--maxoral)">Maxoral</h4><span class="tier-badge" style="color:var(--maxoral)">Rx Grade — Professional Channel</span><p>Prescription-strength formulations. Higher enzyme concentrations, full phage payloads (when cleared), extended-release tray application. Distributed through DSOs, periodontists, oral surgeons via Henry Schein, Patterson, Benco.</p></div>
+        <div class="tier" style="border-top-color:var(--fasolati-green)"><h4 style="color:var(--fasolati-green)">Fasolati</h4><span class="tier-badge" style="color:var(--fasolati-green)">OTC Grade — Consumer Channel</span><p>Consumer formulations optimized within OTC regulatory limits. D2C, Amazon, pharmacy, subscription. Daily Loria maintenance, Lithos remineralization kits, Stage 1 Lytica enzyme gel. The recurring revenue engine.</p></div>
+      </div>
+    </div>
+    <div class="prod">
+      <div class="prod-head"><span class="prod-name" style="color:var(--t)">The Therapeutic Cascade</span></div>
+      <p class="prod-tagline">Lytica, Lithos, and Loria are not three separate products. They are a clinical protocol.</p>
+      <div class="cascade">
+        <div class="cascade-step"><span class="cascade-num" style="color:var(--lytica)">1</span><div class="cascade-content"><h4 style="color:var(--lytica)">Lytica Hunts</h4><p>Clear the active infection. Breach the biofilm. Eliminate keystone pathogens. Reset the ecology.</p></div></div>
+        <div class="cascade-arrow">↓</div>
+        <div class="cascade-step"><span class="cascade-num" style="color:var(--lithos)">2</span><div class="cascade-content"><h4 style="color:var(--lithos)">Lithos Rebuilds</h4><p>Restore what disease destroyed. Regenerate enamel. Reconstruct mineral density from the lattice up.</p></div></div>
+        <div class="cascade-arrow">↓</div>
+        <div class="cascade-step"><span class="cascade-num" style="color:var(--loria)">3</span><div class="cascade-content"><h4 style="color:var(--loria)">Loria Purifies</h4><p>Maintain the ecology daily. Disrupt biofilm reformation. Barrier, heal, hydrate, hold. Indefinitely.</p></div></div>
+      </div>
+      <p class="prod-body" style="margin-top:28px">DSOs deploy this as a complete system of care. Lytica is the high-margin intervention. Lithos is the upsell. Loria is the recurring subscription revenue stream.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ INSIDE THE BLACK BOX OVERLAY ═══ -->
+<div class="bb-overlay" id="bb-overlay">
+  <button class="bb-close" id="bb-close">✕</button>
+  <div class="bb-inner">
+
+    <div class="bb-hero">
+      <h1>Inside the <span class="bb-accent">Black Box</span></h1>
+      <p>You deserve to know exactly how the AI that manages your health actually works — what it knows, where it learned it, how it checks itself, and how it gets smarter the longer you use it.</p>
+    </div>
+
+    <!-- 01 — FOUNDATION -->
+    <div class="bb-section">
+      <div class="bb-section-num" style="color:var(--t)">01 — The Brain</div>
+      <h2>What Powers SciAgent</h2>
+      <p class="bb-tagline">Not a chatbot. A clinical reasoning engine trained on the science of inflammation.</p>
+      <p class="bb-body">SciAgent is built on a large language model — the same class of AI behind the most advanced reasoning systems in the world — but fine-tuned specifically for oral-systemic health. Think of the base model as a medical school graduate: broad knowledge, strong reasoning. Our fine-tuning is the residency — years of specialized training in the exact pathways that connect your mouth, your gut, and your systemic inflammation.</p>
+      <div class="bb-cards">
+        <div class="bb-card"><h4 style="color:var(--t)">Foundation Model</h4><p>A state-of-the-art language model provides the reasoning backbone — the ability to read your data, recognize patterns, weigh tradeoffs, and explain its thinking in plain language. We don't build this from scratch. We build on the best.</p></div>
+        <div class="bb-card"><h4 style="color:var(--t)">Domain Fine-Tuning</h4><p>We then train the model on oral-systemic health specifically: periodontal pathology, gut barrier dynamics, inflammatory cascades, biomarker interpretation, pharmacology of our product lines. It doesn't guess about inflammation. It reasons from mechanism.</p></div>
+        <div class="bb-card"><h4 style="color:var(--g)">Constrained Outputs</h4><p>SciAgent can only recommend interventions from the Fasolati product ecosystem. It cannot prescribe medications, diagnose diseases, or replace your doctor. It operates within strict clinical guardrails — what to rinse, swallow, and avoid. Not medical advice. Protocol guidance.</p></div>
+        <div class="bb-card"><h4 style="color:var(--g)">Explainable Reasoning</h4><p>Every recommendation SciAgent makes comes with a "why." Not a black box output — a transparent chain of reasoning you can read, question, and share with your clinician. If it suggests increasing your Loria frequency, it tells you exactly which data point triggered that change.</p></div>
+      </div>
+    </div>
+
+    <!-- 02 — TRAINING DATA -->
+    <div class="bb-section">
+      <div class="bb-section-num" style="color:var(--t)">02 — The Education</div>
+      <h2>Where It Learned What It Knows</h2>
+      <p class="bb-tagline">Trained on peer-reviewed science. Not internet health forums. Not sponsored content.</p>
+      <p class="bb-body">The quality of an AI is only as good as the quality of its training data. SciAgent's knowledge base is built from curated, peer-reviewed clinical literature — the same sources your periodontist and gastroenterologist rely on. We don't scrape the internet. We curate the science.</p>
+      <div class="bb-cards">
+        <div class="bb-card"><h4 style="color:var(--t)">Clinical Literature</h4><p>Thousands of peer-reviewed papers on periodontitis, gut permeability, inflammatory biomarkers, microbiome ecology, and the oral-systemic connection. Sources include The Lancet, Nature, Journal of Clinical Periodontology, Gut, and specialized inflammation research.</p></div>
+        <div class="bb-card"><h4 style="color:var(--t)">Biomarker Databases</h4><p>Reference ranges, population distributions, and clinical significance thresholds for hs-CRP, HbA1c, zonulin, calprotectin, LPS-binding protein, and other inflammatory markers. SciAgent knows what your numbers mean in context — not just whether they're "high" or "low."</p></div>
+        <div class="bb-card"><h4 style="color:var(--g)">Product Pharmacology</h4><p>Deep knowledge of every Fasolati formulation — mechanisms, dosing, interactions, contraindications, expected response curves. When SciAgent adjusts your Lytica protocol, it understands the enzymatic and phage mechanisms at the molecular level.</p></div>
+        <div class="bb-card"><h4 style="color:var(--g)">Clinical Practice Guidelines</h4><p>Current treatment guidelines from the American Academy of Periodontology, American Gastroenterological Association, and the European Federation of Periodontology. SciAgent's recommendations align with — never contradict — established standards of care.</p></div>
+      </div>
+      <p class="bb-body" style="margin-top:24px;font-size:.82rem;opacity:.7">What SciAgent is never trained on: social media health claims, supplement marketing, anecdotal testimonials, or unreviewed preprints. If it's not in the peer-reviewed literature or validated clinical databases, SciAgent doesn't know it — and that's by design.</p>
+    </div>
+
+    <!-- 03 — VERIFICATION -->
+    <div class="bb-section">
+      <div class="bb-section-num" style="color:var(--t)">03 — The Fact-Check</div>
+      <h2>How It Verifies Everything</h2>
+      <p class="bb-tagline">Every recommendation runs through three layers of verification before it reaches you.</p>
+      <p class="bb-body">We built SciAgent with a fundamental assumption: AI makes mistakes. The question isn't whether errors happen — it's whether the system catches them before they reach you. Our answer is a three-layer verification architecture that treats every output as unproven until confirmed.</p>
+
+      <div class="bb-flow">
+        <div class="bb-flow-step"><h4 style="color:var(--t)">Layer 1</h4><p><strong style="color:var(--w)">Evidence Match</strong><br>Every claim is cross-referenced against its source literature. If SciAgent says "hs-CRP above 3.0 correlates with increased cardiovascular risk," it must cite the specific studies.</p></div>
+        <span class="bb-flow-arrow">→</span>
+        <div class="bb-flow-step"><h4 style="color:var(--g)">Layer 2</h4><p><strong style="color:var(--w)">Clinical Guardrails</strong><br>Rule-based safety checks catch anything outside established parameters. Dosing limits, contraindication flags, interaction warnings — hard-coded, not learned. The AI cannot override these.</p></div>
+        <span class="bb-flow-arrow">→</span>
+        <div class="bb-flow-step"><h4 style="color:var(--t)">Layer 3</h4><p><strong style="color:var(--w)">Confidence Scoring</strong><br>Every recommendation carries a confidence score. High confidence: act on it. Medium: SciAgent explains the uncertainty. Low: it flags the question for your clinician instead of guessing.</p></div>
+      </div>
+
+      <div class="bb-trust">
+        <div class="bb-trust-item"><div class="bb-trust-icon" style="color:var(--t)">⊘</div><h4>Never Invents</h4><p>SciAgent cannot fabricate studies or statistics. It retrieves from its verified knowledge base or says "I don't know."</p></div>
+        <div class="bb-trust-item"><div class="bb-trust-icon" style="color:var(--g)">⟐</div><h4>Never Overreaches</h4><p>If your data suggests something outside its scope — a possible diagnosis, a medication question — it routes you to your doctor, not a guess.</p></div>
+        <div class="bb-trust-item"><div class="bb-trust-icon" style="color:var(--t)">↻</div><h4>Always Auditable</h4><p>Every recommendation is logged with its reasoning chain. Your clinician can review exactly why SciAgent made each suggestion.</p></div>
+      </div>
+    </div>
+
+    <!-- 04 — PERSONALIZATION -->
+    <div class="bb-section">
+      <div class="bb-section-num" style="color:var(--g)">04 — Your Model</div>
+      <h2>How It Learns You</h2>
+      <p class="bb-tagline">The longer you use Fasolati, the smarter your personal model becomes.</p>
+      <p class="bb-body">SciAgent starts with population-level science — what works for most people. But you're not most people. Over weeks and months, it builds a model of your specific inflammatory patterns, your response curves, your habits, and your triggers. This is where it transforms from a general tool into your personal health engine.</p>
+
+      <div class="bb-timeline">
+        <div class="bb-tl-item"><h4>Week 1 — Baseline</h4><p>SciAgent ingests your initial data: lab results, oral exam findings, any wearable data you connect. It establishes your personal baseline across the three vectors — Oral Ecology, Gut Integrity, Systemic Inflammation — and sets starting protocols based on population evidence.</p></div>
+        <div class="bb-tl-item"><h4>Weeks 2–4 — Response Mapping</h4><p>As you use the products and log data, SciAgent begins tracking how your body responds. How quickly does your hs-CRP drop after a Lytica intervention? Does your sleep quality correlate with gut protocol adherence? It's building your personal response curves.</p></div>
+        <div class="bb-tl-item"><h4>Months 2–3 — Pattern Recognition</h4><p>With enough data, SciAgent starts identifying your unique patterns. Maybe your inflammation spikes every time you travel. Maybe your oral ecology dips on weekends. Maybe Biolumen works faster for you than population averages predict. These insights shape increasingly precise protocols.</p></div>
+        <div class="bb-tl-item"><h4>Month 4+ — Predictive Protocols</h4><p>This is where the model matures. SciAgent begins anticipating inflammatory events before they show up in your biomarkers — adjusting protocols proactively based on behavioral patterns, seasonal trends, and your established response curves. It moves from reactive to predictive.</p></div>
+        <div class="bb-tl-item"><h4>Ongoing — Continuous Refinement</h4><p>Your model never stops learning. Every new lab result, every oral exam, every week of wearable data sharpens the picture. And as the broader Fasolati user base grows, anonymized population insights feed back into the system — your model benefits from the collective without ever exposing your data.</p></div>
+      </div>
+    </div>
+
+    <!-- 05 — YOUR DATA -->
+    <div class="bb-section" style="border-bottom:none">
+      <div class="bb-section-num" style="color:var(--g)">05 — Your Data</div>
+      <h2>What Happens to Your Information</h2>
+      <p class="bb-tagline">Your health data is yours. Period.</p>
+      <div class="bb-cards">
+        <div class="bb-card"><h4 style="color:var(--t)">Encrypted at Rest</h4><p>Your personal health data is encrypted with AES-256 encryption — the same standard used by banks and defense systems. Even our engineers cannot read your individual records.</p></div>
+        <div class="bb-card"><h4 style="color:var(--t)">Never Sold</h4><p>Your data is never sold, rented, or shared with advertisers, insurance companies, or employers. Fasolati's business model is products and subscriptions — not your information.</p></div>
+        <div class="bb-card"><h4 style="color:var(--g)">You Control It</h4><p>Export your complete health record anytime. Delete your data anytime. Pause data collection anytime. Your model, your data, your decision.</p></div>
+        <div class="bb-card"><h4 style="color:var(--g)">De-identified Research</h4><p>If you opt in, anonymized and de-identified patterns from your data contribute to population-level research that improves the system for everyone. No identifying information ever leaves your account.</p></div>
+      </div>
+
+      <div style="text-align:center;margin-top:48px">
+        <a href="https://claude.ai/public/artifacts/4bb92b11-5a4b-4fb9-bd72-46cab7f1b752" class="btn bp" target="_blank">See SciAgent in Action →</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ PARTNER WITH US OVERLAY ═══ -->
+<div class="partner-overlay" id="partner-overlay">
+  <button class="partner-close" id="partner-close">✕</button>
+  <div class="partner-inner">
+
+    <div class="partner-hero">
+      <h1>Partner With Us</h1>
+      <p>Whether you're a clinician, investor, DSO operator, or researcher — tell us how you want to connect and we'll get back to you within 48 hours.</p>
+    </div>
+
+    <!-- FORM -->
+    <div class="partner-form" id="partner-form">
+
+      <!-- Step 1: Role Selection -->
+      <div style="margin-bottom:12px"><span class="pf-label">I'm interested as a<span class="req">*</span></span></div>
+      <div class="role-grid" id="role-grid">
+        <div class="role-card" data-role="clinician">
+          <div class="role-icon">⚕</div>
+          <div class="role-name">Clinician</div>
+          <div class="role-desc">Pilot the platform in your practice</div>
+        </div>
+        <div class="role-card" data-role="investor">
+          <div class="role-icon">◆</div>
+          <div class="role-name">Investor</div>
+          <div class="role-desc">Fund the node network</div>
+        </div>
+        <div class="role-card" data-role="dso">
+          <div class="role-icon">⬡</div>
+          <div class="role-name">DSO Partner</div>
+          <div class="role-desc">Integrate the therapeutic cascade</div>
+        </div>
+        <div class="role-card" data-role="researcher">
+          <div class="role-icon">⊛</div>
+          <div class="role-name">Researcher</div>
+          <div class="role-desc">Collaborate on clinical studies</div>
+        </div>
+        <div class="role-card" data-role="general" style="grid-column:1/-1">
+          <div class="role-icon">→</div>
+          <div class="role-name">General Interest</div>
+          <div class="role-desc">Stay in the loop on Fasolati developments</div>
+        </div>
+      </div>
+
+      <!-- Role-specific value props -->
+      <div class="role-value" id="rv-clinician"><h4>For Clinicians</h4><p>Get early access to Lytica, Lithos, and Loria professional products. Integrate the Fasolati Engine into your practice workflow. See how oral-systemic protocols reduce inflammatory markers in your patient population.</p></div>
+      <div class="role-value" id="rv-investor" style="border-left-color:var(--g)"><h4>For Investors</h4><p>Fasolati sits at the intersection of oral health ($50B), gut health ($71B), and AI-driven precision medicine. We're building the operating system for inflammation prevention — the largest addressable cause of death globally.</p></div>
+      <div class="role-value" id="rv-dso" style="border-left-color:var(--t)"><h4>For DSO Partners</h4><p>Deploy the full Lytica → Lithos → Loria therapeutic cascade across your network. New high-margin intervention revenue plus recurring Fasolati subscriptions that increase patient lifetime value.</p></div>
+      <div class="role-value" id="rv-researcher" style="border-left-color:var(--g)"><h4>For Researchers</h4><p>Access de-identified longitudinal data from the Fasolati platform. Collaborate on oral-systemic, microbiome, and biomarker studies with real-world evidence from active patient populations.</p></div>
+      <div class="role-value" id="rv-general"><h4>Stay Connected</h4><p>Get updates on product launches, research findings, and partnership opportunities as the Fasolati node network expands.</p></div>
+
+      <!-- Contact Fields -->
+      <div class="pf-row">
+        <div class="pf-group"><label class="pf-label">First Name<span class="req">*</span></label><input class="pf-input" type="text" id="pf-first" placeholder="First name" required></div>
+        <div class="pf-group"><label class="pf-label">Last Name<span class="req">*</span></label><input class="pf-input" type="text" id="pf-last" placeholder="Last name" required></div>
+      </div>
+      <div class="pf-group"><label class="pf-label">Email<span class="req">*</span></label><input class="pf-input" type="email" id="pf-email" placeholder="you@example.com" required></div>
+      <div class="pf-row">
+        <div class="pf-group"><label class="pf-label">Phone</label><input class="pf-input" type="tel" id="pf-phone" placeholder="(555) 123-4567"></div>
+        <div class="pf-group"><label class="pf-label">Company / Practice</label><input class="pf-input" type="text" id="pf-company" placeholder="Organization name"></div>
+      </div>
+      <div class="pf-group"><label class="pf-label">Message</label><textarea class="pf-textarea" id="pf-message" placeholder="Tell us what you're looking for, what excites you, or any questions you have..."></textarea></div>
+
+      <button class="pf-submit" id="pf-submit" disabled>Select a role above to continue</button>
+      <p class="pf-note">Your information is encrypted and never shared. We'll respond within 48 hours.</p>
+    </div>
+
+    <!-- Success State -->
+    <div class="partner-success" id="partner-success">
+      <div class="ps-icon">✓</div>
+      <div class="ps-title">We've Got It</div>
+      <p class="ps-body">Thanks for reaching out. Your information has been received and someone from the Fasolati team will be in touch within 48 hours. In the meantime, explore the platform:</p>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:28px;flex-wrap:wrap">
+        <a href="https://claude.ai/public/artifacts/4bb92b11-5a4b-4fb9-bd72-46cab7f1b752" class="btn bp" target="_blank">Launch Engine UI</a>
+        <a href="https://claude.ai/public/artifacts/fddec7f6-4bf5-4888-b8a3-89bd80287d18" class="btn bs" target="_blank">View Deep Dive</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SHOP OVERLAY ═══ -->
+<div class="shop-overlay" id="shop-overlay">
+  <button class="shop-close" id="shop-close">✕</button>
+  <div class="shop-inner">
+    <div class="shop-hero">
+      <h1>The Fasolati Shop</h1>
+      <p>Clinical-grade oral and gut health — available now or join the waitlist for early access to products in development.</p>
+    </div>
+
+    <!-- LORIA — AVAILABLE -->
+    <div class="shop-product featured">
+      <span class="sp-badge live">● Available Now</span>
+      <div class="sp-name" style="color:var(--loria)">Loria™ Daily Oral Rinse</div>
+      <p class="sp-tagline">The original Fasolati oral formulation. Barrier, heal, hydrate, hold — every day.</p>
+      <p class="sp-body">Dual-weight hyaluronic acid mucosal barrier system. Replaces chlorhexidine with intelligent ecological remodeling. High MW HA blocks bacterial adhesion while low MW HA stimulates fibroblast proliferation and accelerates wound healing. Bio-adhesive film ensures hours of therapeutic residence — not the 30 seconds of a standard rinse.</p>
+      <div class="sp-details">
+        <div class="sp-detail"><h4 style="color:var(--loria)">Format</h4><p>240mL bottle<br>30-day supply</p></div>
+        <div class="sp-detail"><h4 style="color:var(--loria)">Use</h4><p>Twice daily<br>Rinse 60 seconds</p></div>
+        <div class="sp-detail"><h4 style="color:var(--loria)">Key Actives</h4><p>Dual-weight HA<br>Castor oil · CPC · Pullulan</p></div>
+      </div>
+      <div class="sp-cta">
+        <a class="btn bp" href="#" style="flex-shrink:0">Order Loria™</a>
+        <span style="font-size:.72rem;color:var(--txd)">Free shipping on subscription · Cancel anytime</span>
+      </div>
+    </div>
+
+    <!-- LITHOS — COMING SOON -->
+    <div class="shop-product">
+      <span class="sp-badge soon">Coming Soon</span>
+      <div class="sp-name" style="color:var(--lithos)">Lithos™ Enamel Regeneration Kit</div>
+      <p class="sp-tagline">Biomimetic enamel reconstruction from the lattice up. Not a coating — true structural integration.</p>
+      <p class="sp-body">Built on Alvaro Mata's elastin-like recombinamer technology. At-home application kit for early caries, erosive wear, post-whitening sensitivity, and white spot lesions. Professional-strength version available through your dental provider.</p>
+      <div class="sp-cta">
+        <div class="sp-waitlist"><input type="email" placeholder="your@email.com" id="wl-lithos"><button onclick="joinWaitlist('lithos',this)">Join Waitlist</button></div>
+      </div>
+    </div>
+
+    <!-- LYTICA — COMING SOON -->
+    <div class="shop-product">
+      <span class="sp-badge soon">Coming Soon — Rx Required</span>
+      <div class="sp-name" style="color:var(--lytica)">Lytica™ Biofilm Intervention System</div>
+      <p class="sp-tagline">Two-stage enzyme + phage biofilm disruption. Ask your periodontist about Lytica.</p>
+      <p class="sp-body">Professional-dispensed tray application system. Stage 1 enzymatic matrix degradation followed by Stage 2 targeted bacteriophages. For active periodontal disease, peri-implantitis, and refractory cases. Available through the Maxoral professional channel.</p>
+      <div class="sp-cta">
+        <div class="sp-waitlist"><input type="email" placeholder="your@email.com" id="wl-lytica"><button onclick="joinWaitlist('lytica',this)">Get Notified</button></div>
+      </div>
+    </div>
+
+    <!-- GUT STACK — COMING SOON -->
+    <div class="shop-product">
+      <span class="sp-badge soon">Coming Soon</span>
+      <div class="sp-name" style="color:var(--g)">Gut Restoration Stack</div>
+      <p class="sp-tagline">Magisnat · Biolumen · Monch Monch — the second origin node, addressed.</p>
+      <p class="sp-body">Anti-inflammatory nutraceuticals, precision prebiotic fibers, and metabolic snacks designed to restore gut barrier integrity and microbiome diversity. Three products, one protocol — matched to your Fasolati Engine gut integrity score.</p>
+      <div class="sp-cta">
+        <div class="sp-waitlist"><input type="email" placeholder="your@email.com" id="wl-gut"><button onclick="joinWaitlist('gut',this)">Join Waitlist</button></div>
+      </div>
+    </div>
+
+    <!-- FASOLATI ENGINE — COMING SOON -->
+    <div class="shop-product">
+      <span class="sp-badge soon">Beta Access</span>
+      <div class="sp-name" style="color:var(--t)">Fasolati Engine Subscription</div>
+      <p class="sp-tagline">Three-vector scoring, SciAgent AI protocols, biomarker tracking — your personal inflammation operating system.</p>
+      <p class="sp-body">Connect your labs, wearables, and oral exam data. SciAgent builds your personal inflammatory model and writes daily protocol orders. Subscription includes Engine access, protocol updates, and priority access to new products as they launch.</p>
+      <div class="sp-cta">
+        <div class="sp-waitlist"><input type="email" placeholder="your@email.com" id="wl-engine"><button onclick="joinWaitlist('engine',this)">Request Beta Access</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ABOUT OVERLAY ═══ -->
+<div class="about-overlay" id="about-overlay">
+  <button class="about-close" id="about-close">✕</button>
+  <div class="about-inner">
+    <div class="about-hero">
+      <h1>Turning an Unlit Corner On</h1>
+      <p>Fasolati started with a simple observation in an operating room: the mouth and the body have never been treated as one connected system. We're changing that.</p>
+    </div>
+
+    <!-- ORIGIN STORY -->
+    <div class="ab-section">
+      <div class="ab-section-num" style="color:var(--t)">The Origin</div>
+      <h2>From the OR to the Operating System</h2>
+      <p class="ab-body">For nearly two decades, Dr. Thad Connely has operated at the intersection of the mouth and the body — as an oral and maxillofacial surgeon performing total joint reconstructions, treating the most severe manifestations of what happens when oral disease goes systemic.</p>
+      <p class="ab-body">The pattern was always the same: patients arriving with advanced disease that started as inflammation nobody monitored. Periodontitis that seeded systemic infection. Gut dysbiosis that accelerated joint destruction. Biomarkers that were never checked until the damage was done.</p>
+      <p class="ab-body">The insight wasn't that these systems were connected — the literature has shown that for decades. The insight was that nobody had built the infrastructure to treat them as one system. No product line spanned both origin nodes. No AI correlated the data across domains. No protocol existed that told a patient what to rinse, swallow, and avoid — today, based on their specific inflammatory profile.</p>
+      <p class="ab-body">Fasolati is that infrastructure. Built by a surgeon who got tired of operating on problems that should have been intercepted upstream.</p>
+    </div>
+
+    <!-- MISSION -->
+    <div class="ab-section">
+      <div class="ab-section-num" style="color:var(--g)">The Mission</div>
+      <h2>Make Inflammation Visible, Controllable, and Preventable</h2>
+      <p class="ab-body">Three out of five people die of chronic inflammatory diseases. The mouth and the gut are the two origin nodes where that inflammation begins — and the two places where it can actually be intercepted before it becomes cardiovascular disease, neurodegeneration, metabolic syndrome, or autoimmune destruction.</p>
+      <div class="ab-values">
+        <div class="ab-val"><h4 style="color:var(--t)">Treat the Network, Not the Symptom</h4><p>The body is a connected system. Oral health, gut health, and systemic inflammation are not three separate problems — they're one network. Fasolati is built to treat the network.</p></div>
+        <div class="ab-val"><h4 style="color:var(--g)">Protocols Over Advice</h4><p>Vague wellness recommendations fail. Specific, daily, data-driven protocols succeed. SciAgent doesn't suggest you "eat better" — it tells you exactly what to do today based on your data.</p></div>
+        <div class="ab-val"><h4 style="color:var(--t)">Surgeon-Grade Science, Patient-Grade Access</h4><p>The same mechanisms used in the operating room — enzymatic biofilm disruption, phage therapy, HA tissue engineering — delivered as daily consumer products anyone can use.</p></div>
+        <div class="ab-val"><h4 style="color:var(--g)">Transparency as Architecture</h4><p>Every recommendation comes with a "why." Every data point is yours. Every algorithm is auditable. We built "Inside the Black Box" because trust isn't a feature — it's the foundation.</p></div>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="ab-section">
+      <div class="ab-section-num" style="color:var(--t)">The Journey</div>
+      <h2>Milestones</h2>
+      <div class="ab-timeline">
+        <div class="ab-tl"><span class="ab-year" style="color:var(--t)">2006–2015</span><h4>Clinical Foundation</h4><p>Nearly a decade of oral and maxillofacial surgery across thousands of cases. Pattern recognition: the mouth-body disconnect in clinical practice is systemic, not anecdotal. The problem isn't knowledge — it's infrastructure.</p></div>
+        <div class="ab-tl"><span class="ab-year" style="color:var(--g)">2016–2019</span><h4>Oral Formulation Development</h4><p>Development of the dual-weight hyaluronic acid platform. First prototypes of what would become Loria — a chlorhexidine replacement that heals instead of kills. Early clinical validation of the mucosal barrier approach.</p></div>
+        <div class="ab-tl"><span class="ab-year" style="color:var(--t)">2020–2022</span><h4>From Product to Platform</h4><p>The realization that a single oral rinse wasn't enough. The mouth-gut-systemic framework takes shape. Partnerships with Magisnat (nutraceuticals), phage therapy researchers, and the Mata lab at Nottingham for enamel regeneration.</p></div>
+        <div class="ab-tl"><span class="ab-year" style="color:var(--g)">2023–2024</span><h4>Fasolati Architecture</h4><p>The platform crystallizes: three oral product lines (Lytica, Lithos, Loria), three gut products (Magisnat, Biolumen, Monch Monch), two distribution tiers (Maxoral Rx, Fasolati OTC), and the SciAgent AI engine tying it all together.</p></div>
+        <div class="ab-tl"><span class="ab-year" style="color:var(--t)">2025</span><h4>Lithos Breakthrough</h4><p>Mata's ELR enamel regeneration technology published in Nature Communications. Lithos integration begins — the first product in the world to offer true biomimetic enamel reconstruction outside a lab setting.</p></div>
+        <div class="ab-tl"><span class="ab-year" style="color:var(--g)">2026</span><h4>Node Network Launch</h4><p>Loria goes to market. Fasolati Engine enters beta. DSO partnerships activate. The node network goes from architecture to operating system. The unlit corner starts to glow.</p></div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:40px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <a class="btn bp" style="cursor:pointer" onclick="closeAbout();openPartner()">Partner With Us</a>
+      <a href="https://claude.ai/public/artifacts/fddec7f6-4bf5-4888-b8a3-89bd80287d18" class="btn bs" target="_blank">View Deep Dive</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ENGINE UI EMBED ═══ -->
+<div class="embed-overlay" id="embed-engine">
+  <div class="embed-bar"><span class="embed-title">Fasolati Engine UI</span><button class="embed-close" onclick="closeEmbed('engine')">✕</button></div>
+  <iframe class="embed-frame" id="frame-engine" src="about:blank"></iframe>
+</div>
+
+<!-- ═══ DEEP DIVE EMBED ═══ -->
+<div class="embed-overlay" id="embed-deepdive">
+  <div class="embed-bar"><span class="embed-title" style="color:var(--g)">Fasolati Deep Dive</span><button class="embed-close" onclick="closeEmbed('deepdive')">✕</button></div>
+  <iframe class="embed-frame" id="frame-deepdive" src="about:blank"></iframe>
+</div>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <p class="h-label mo">Oral · Gut · Systemic</p>
+  <h1 class="h1 mo mo-d1">Fasolati<sup>™</sup></h1>
+  <p class="h-tag mo mo-d2">"Oral health is the last unlit corner of systemic health."</p>
+  <p class="h-sub mo mo-d3">Fasolati is an AI‑driven platform that treats the mouth and gut as origin nodes of systemic inflammation, wiring oral therapeutics, gut repair, and biomarker‑driven protocols into a single operating system for human health.</p>
+  <p class="h-mic mo mo-d4">Not advice, an engine. Not a product line, a node network.</p>
+  <div class="h-btns mo mo-d4">
+    <a class="btn bp" onclick="openEmbed('engine')" style="cursor:pointer">Launch Fasolati Engine UI</a>
+    <a class="btn bs" onclick="openEmbed('deepdive')" style="cursor:pointer">View Fasolati Deep Dive</a>
+  </div>
+</section>
+
+<!-- ═══ FRAMEWORK MIND MAP (NEW) ═══ -->
+<section class="map-section" id="framework">
+<div class="fw mo">
+  <div class="fw-head">
+    <div class="fw-title">Systemic Health Framework</div>
+    <div class="fw-sub">Click nodes to explore · Terminal pills reveal clinical depth</div>
+  </div>
+
+  <!-- 01 -->
+  <div><button class="nd-h" onclick="toggleNode(this)"><span class="nd-num" style="color:var(--t)">01</span><span class="nd-lab">The Inflammation Case</span><span class="nd-chev" style="color:var(--t)">›</span></button>
+  <div class="nd-body" style="display:none;padding:8px 0 12px 28px;position:relative"><div style="position:absolute;left:20px;top:0;bottom:12px;width:1px;background:linear-gradient(to bottom,rgba(0,232,204,.2),transparent)"></div>
+    <div class="br"><div class="br-line"></div><div class="br-tick"></div><div class="br-name" style="color:var(--t)">Core Stats</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">3 of 5 deaths from chronic inflammation</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Chronic inflammatory diseases — cardiovascular disease, cancer, diabetes, Alzheimer's, autoimmune disorders — account for 3 in 5 deaths globally. This isn't a comorbidity. It's the primary mechanism. Fasolati treats inflammation not as a symptom to suppress but as a network failure with identifiable origin nodes: the mouth and the gut.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">34.6% with elevated hs-CRP</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">High-sensitivity C-reactive protein is the gold-standard serum marker for systemic inflammation. Over a third of US adults have elevated levels — most unaware. The Fasolati Engine uses hs-CRP as a primary input in its Three-Vector Score, correlating it with oral ecology and gut integrity data for real-time inflammatory load tracking.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">90% of spend downstream of inflammation</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">The healthcare system spends 90% of its $4.1 trillion annual budget treating downstream consequences of chronic inflammation. Almost nothing is spent on interception at origin. Fasolati's thesis: move upstream. Target the controllable nodes where inflammation begins, at a fraction of the cost of treating where it ends.</div>
+    </div>
+    <div class="br"><div class="br-line"></div><div class="br-tick"></div><div class="br-name" style="color:var(--t)">Key Concepts</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Chronic inflammation as primary death mechanism</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">The paradigm shift. Inflammation isn't a side effect of disease — it IS the disease mechanism. From atherosclerotic plaque formation to tumor microenvironment signaling to neuroinflammatory cascades in Alzheimer's, the same mediators (IL-6, TNF-α, CRP) drive the pathology. Fasolati treats the body as a network where inflammation propagates from origin nodes. Control the nodes, control the network.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">hs-CRP as early warning</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">hs-CRP is produced by the liver in response to IL-6 signaling — a systemic alarm bell. SciAgent AI integrates hs-CRP trends with oral biomarker data (pocket depth, bleeding on probing) and gut markers (zonulin, calprotectin) to detect inflammatory acceleration early — when intervention is still cheap and effective.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Mouth and Gut as controllable origin nodes</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">The mouth harbors 700+ bacterial species in biofilm communities millimeters from the bloodstream. The gut epithelium is a single cell layer separating trillions of microbes from systemic circulation. Fasolati's architecture — Lytica, Lithos, Loria for the mouth; Magisnat, Biolumen, Monch Monch for the gut — targets the two highest-leverage intervention points in human health.</div>
+    </div>
+  </div></div>
+
+  <!-- 02 -->
+  <div><button class="nd-h" onclick="toggleNode(this)"><span class="nd-num" style="color:var(--t)">02</span><span class="nd-lab">Origin Node: Mouth</span><span class="nd-chev" style="color:var(--t)">›</span></button>
+  <div class="nd-body" style="display:none;padding:8px 0 12px 28px;position:relative"><div style="position:absolute;left:20px;top:0;bottom:12px;width:1px;background:linear-gradient(to bottom,rgba(0,232,204,.2),transparent)"></div>
+    <div class="br"><div class="br-line"></div><div class="br-tick"></div><div class="br-name" style="color:var(--t)">Pathophysiology</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Periodontitis as systemic disease</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Periodontitis isn't a dental problem — it's a systemic inflammatory disease with oral manifestations. The ulcerated pocket epithelium exposes roughly 72 cm² of wound surface to 500+ bacterial species. P. gingivalis, T. denticola, and A. actinomycetemcomitans have been found in atherosclerotic plaques, synovial fluid, amniotic fluid, and Alzheimer's brain tissue.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Biofilm entry via ulcerated epithelium</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Dental biofilm is a structured polymicrobial community protected by an extracellular matrix resisting both immune response and conventional antimicrobials. When the gingival epithelium ulcerates, biofilm organisms gain direct hematogenous access. Lytica™ addresses this with enzymatic matrix disruption followed by targeted bacteriophages that eliminate keystone pathogens without disrupting commensal ecology.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Pathogen link to Brain, Heart, and Placenta</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">P. gingivalis in Alzheimer's brain tissue — gingipain proteases driving tau phosphorylation. F. nucleatum in colorectal tumors and placental tissue, linked to preterm birth. T. denticola in atherosclerotic plaques. These aren't correlations — established mechanistic pathways. Eliminate the oral reservoir, cut off the systemic seeding.</div>
+    </div>
+    <div class="br"><div class="br-line"></div><div class="br-tick"></div><div class="br-name" style="color:var(--t)">Oral Therapeutic Stack</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Lytica: Enzyme and Phage hunt/clear</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Lytica™ — precision ecological rescue. Stage 1: dispersin B and DNase I enzymatically degrade the biofilm's extracellular polymeric matrix. Stage 2: targeted bacteriophages against P. gingivalis, A. actinomycetemcomitans, T. forsythia selectively eliminate keystone pathogens while preserving commensals. Not a broad-spectrum kill — ecological surgery.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Lithos: Enamel regeneration platform</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Lithos™ leverages Alvaro Mata's elastin-like recombinamer (ELR) technology for true biomimetic enamel regeneration. The ELR scaffold self-assembles at the tooth surface, directing calcium phosphate nucleation into prismatic structures indistinguishable from biological enamel. Structural regeneration, not cosmetic patching.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Loria: Biofilm barrier and rinse</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Loria™ — dual-weight hyaluronic acid mucosal barrier. High-MW HA (1.2–1.8 MDa) blocks bacterial adhesion and LPS translocation. Low-MW HA (20–200 kDa) stimulates fibroblast proliferation and accelerates wound healing. Castor oil delivery for sustained release. The daily habit loop that holds ecological gains.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Maxoral: Professional Rx interventions</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Maxoral™ — clinical authority channel. Higher-concentration therapeutic rinses, prescription-strength phage cocktails, advanced HA delivery for in-office application. FDA-regulated claims dispensed through dental and periodontal practices. Clinical efficacy for complex cases plus professional endorsement that builds trust in the Fasolati ecosystem.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Fasolati: Consumer OTC habit loops</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Fasolati™ consumer products — clinical-grade science translated into daily OTC habit loops. Maintenance rinses, daily biofilm management, Fasolati Engine app integration. Behavioral anchors that maintain ecological gains while generating continuous biomarker data back into the SciAgent AI platform.</div>
+    </div>
+    <div class="br"><div class="br-line"></div><div class="br-tick"></div><div class="br-name" style="color:var(--t)">Therapeutic Cascade</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Hunt: Lytica</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Phase 1. Enzymatic biofilm disruption followed by phage-mediated pathogen elimination. Ecological rescue for a dysbiotic oral microbiome. You can't rebuild on a contaminated foundation. Lytica creates the clean slate.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Rebuild: Lithos</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Phase 2. With pathogenic biofilm cleared, Lithos™ regenerates enamel at the crystallographic level — restoring hard-tissue architecture that biofilm degraded over years of dysbiotic ecology.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Maintain: Loria</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Phase 3. Daily mucosal barrier protection, sustained HA delivery, biofilm management. Where the habit loop lives, adherence meets data collection, and the Fasolati Engine gets continuous signal for AI-driven protocol optimization.</div>
+    </div>
+  </div></div>
+
+  <!-- 03 -->
+  <div><button class="nd-h" onclick="toggleNode(this)"><span class="nd-num" style="color:var(--g)">03</span><span class="nd-lab">Origin Node: Gut</span><span class="nd-chev" style="color:var(--g)">›</span></button>
+  <div class="nd-body" style="display:none;padding:8px 0 12px 28px;position:relative"><div style="position:absolute;left:20px;top:0;bottom:12px;width:1px;background:linear-gradient(to bottom,rgba(224,180,74,.2),transparent)"></div>
+    <div class="br"><div class="br-line"></div><div class="br-tick"></div><div class="br-name" style="color:var(--g)">Pathophysiology</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Barrier failure and LPS translocation</span><span class="pill-plus" style="color:var(--g)">+</span></div><div class="pill-exp" style="display:none">The gut epithelium — one cell thick — separates the largest microbial community on earth from systemic circulation. When tight junctions fail, LPS from gram-negative bacteria translocates into the bloodstream, triggering TLR4-mediated NF-κB activation. Metabolic endotoxemia drives insulin resistance, fatty liver disease, and cardiovascular inflammation.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Metabolic and neuro disease drivers</span><span class="pill-plus" style="color:var(--g)">+</span></div><div class="pill-exp" style="display:none">Gut-derived LPS drives neuroinflammation via vagal and hematogenous routes — depression, anxiety, neurodegeneration. SCFA deficiency impairs blood-brain barrier integrity and microglial homeostasis. Gut permeability drives insulin resistance independent of caloric intake. Biolumen and Magisnat target these specific pathways.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Oral-gut microbiome link</span><span class="pill-plus" style="color:var(--g)">+</span></div><div class="pill-exp" style="display:none">1.5 liters of saliva swallowed daily — carrying oral microbes into the GI tract. With PPI use or high oral pathogen loads, F. nucleatum and P. gingivalis colonize the gut, driving intestinal inflammation. Fasolati treats this as one connected system: oral intervention reduces pathogenic load reaching the gut.</div>
+    </div>
+    <div class="br"><div class="br-line"></div><div class="br-tick"></div><div class="br-name" style="color:var(--g)">Gut Therapeutic Stack</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Magisnat: Anti-inflammatory nutraceuticals</span><span class="pill-plus" style="color:var(--g)">+</span></div><div class="pill-exp" style="display:none">Magisnat™ — targeted anti-inflammatory compounds: liposomal curcumin, specialized pro-resolving mediators (SPMs), polyphenol complexes. Promotes resolution of inflammation through endogenous lipid mediator pathways rather than broad-spectrum immune suppression.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Biolumen: Engineered prebiotic fibers</span><span class="pill-plus" style="color:var(--g)">+</span></div><div class="pill-exp" style="display:none">Biolumen™ — precision prebiotic fibers selectively feeding Akkermansia muciniphila (barrier integrity), Faecalibacterium prausnitzii (butyrate production), and Bifidobacterium (immune modulation). Targets specific populations that influence tight junction protein expression and mucosal immune tone.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Monch Monch: Metabolic snacks for adherence</span><span class="pill-plus" style="color:var(--g)">+</span></div><div class="pill-exp" style="display:none">Monch Monch™ — the behavioral bridge. Functional snacks delivering prebiotic fibers and anti-inflammatory compounds in formats people actually eat. The best gut protocol fails without adherence. Monch Monch converts clinical nutrition into daily habit. Compliance through pleasure, not discipline.</div>
+    </div>
+  </div></div>
+
+  <!-- 04 -->
+  <div><button class="nd-h" onclick="toggleNode(this)"><span class="nd-num" style="color:var(--t)">04</span><span class="nd-lab">Fasolati Engine</span><span class="nd-chev" style="color:var(--t)">›</span></button>
+  <div class="nd-body" style="display:none;padding:8px 0 12px 28px;position:relative"><div style="position:absolute;left:20px;top:0;bottom:12px;width:1px;background:linear-gradient(to bottom,rgba(0,232,204,.2),transparent)"></div>
+    <div class="br"><div class="br-line"></div><div class="br-tick"></div><div class="br-name" style="color:var(--t)">Three-Vector Score</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Oral Ecology</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Vector 1. Aggregates clinical periodontal data, microbiome composition from salivary diagnostics, and daily self-reported data. SciAgent AI weights these into a composite score reflecting real-time oral inflammatory potential — how much systemic inflammation your mouth is currently generating.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Gut Integrity</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Vector 2. Tracks barrier function through biomarkers (zonulin, calprotectin, LPS-binding protein), microbiome diversity metrics, and daily input data. Reflects the gut's capacity to contain its microbial load — a direct measure of endotoxin leakage into systemic circulation.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Systemic Inflammation Control</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Vector 3 — the output metric. Integrates hs-CRP trends, wearable-derived HRV and sleep data, and available lab work. SciAgent correlates oral and gut vector changes with systemic inflammatory response, building a personalized model. Improve the mouth and gut, watch systemic inflammation fall.</div>
+    </div>
+    <div class="br"><div class="br-line"></div><div class="br-tick"></div><div class="br-name" style="color:var(--t)">SciAgent AI</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Inputs: Labs, wearables, photos</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Multi-modal data ingestion: laboratory results, continuous wearable data (HRV, sleep, activity from Oura/Apple Watch/Whoop), and intraoral photographs analyzed by computer vision for gingival inflammation scoring and plaque visualization. Designed to function with minimal data and improve as more streams connect.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Patterns: Correlation and response curves</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Pattern recognition across three vectors. Identifies correlations invisible to clinicians: how hs-CRP responds to Lytica intervention, how Biolumen cycles affect sleep quality via gut-brain axis, how stress events create predictable inflammatory spikes. Builds personalized response curves — a dynamic model of each user's inflammatory network.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Protocols: Daily checklist and adjustments</span><span class="pill-plus" style="color:var(--t)">+</span></div><div class="pill-exp" style="display:none">Translates pattern analysis into actionable daily protocols: which products, what dosage, what sequence. If oral ecology dips, protocol adjusts — increasing frequency, flagging for clinical follow-up. If gut integrity improves, tapers Magisnat, increases Monch Monch maintenance. Closed-loop: sense, analyze, adjust, verify.</div>
+    </div>
+  </div></div>
+
+  <!-- 05 -->
+  <div><button class="nd-h" onclick="toggleNode(this)"><span class="nd-num" style="color:var(--g)">05</span><span class="nd-lab">Node Network & Business</span><span class="nd-chev" style="color:var(--g)">›</span></button>
+  <div class="nd-body" style="display:none;padding:8px 0 12px 28px;position:relative"><div style="position:absolute;left:20px;top:0;bottom:12px;width:1px;background:linear-gradient(to bottom,rgba(224,180,74,.2),transparent)"></div>
+    <div class="br"><div class="br-line"></div><div class="br-tick"></div><div class="br-name" style="color:var(--g)">Channel Model</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Professional: Authority and acquisition</span><span class="pill-plus" style="color:var(--g)">+</span></div><div class="pill-exp" style="display:none;background:rgba(224,180,74,.03);border-color:rgba(224,180,74,.1)">The professional channel (Maxoral) drives clinical authority and patient acquisition. Practitioners prescribe Maxoral products, establishing credibility that flows downstream to consumer adoption. The professional channel generates the highest-quality data that trains SciAgent AI. Every professional interaction builds platform intelligence while acquiring patients who convert to long-term Fasolati subscribers.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Home/OTC: Retention and recurring data</span><span class="pill-plus" style="color:var(--g)">+</span></div><div class="pill-exp" style="display:none;background:rgba(224,180,74,.03);border-color:rgba(224,180,74,.1)">The consumer channel (Fasolati OTC) is the retention and data engine. Daily product usage generates continuous behavioral and biological data. Subscription models create recurring revenue while maintaining therapeutic continuity. Professional authority acquires; consumer convenience retains and learns.</div>
+    </div>
+    <div class="br"><div class="br-line"></div><div class="br-tick"></div><div class="br-name" style="color:var(--g)">Future Nodes</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">Noxx Systemic Monitoring</span><span class="pill-plus" style="color:var(--g)">+</span></div><div class="pill-exp" style="display:none;background:rgba(224,180,74,.03);border-color:rgba(224,180,74,.1)">Noxx™ — continuous systemic inflammation monitoring. Nitric oxide detection through Raman spectroscopy of muscle tissue, continuous glucose monitoring correlation with inflammatory markers, real-time cytokine profiling. Turns the Three-Vector Score into an N-Vector Score as new nodes come online.</div>
+      <div class="pill" onclick="togglePill(this)"><span class="pill-dot"></span><span style="flex:1">FasolatiCascade Diagnostics</span><span class="pill-plus" style="color:var(--g)">+</span></div><div class="pill-exp" style="display:none;background:rgba(224,180,74,.03);border-color:rgba(224,180,74,.1)">FasolatiCascade™ — diagnostic intelligence layer. Population-level models of inflammatory cascade propagation from longitudinal de-identified data. Which oral microbiome signatures predict cardiovascular events? Which gut permeability patterns precede autoimmune flares? Transforms Fasolati from therapeutic platform into diagnostic and prognostic engine.</div>
+    </div>
+  </div></div>
+
+</div>
+</section>
+
+<!-- ═══ SECTIONS ═══ -->
+<section class="fs" id="s1"><div class="fs-inner">
+  <p class="s-num tn mo">01 — The Case</p>
+  <h2 class="s-title mo mo-d1">The Inflammation Case</h2>
+  <p class="s-intro mo mo-d2">Three out of five people die of chronic inflammatory diseases. The mechanism is distributed, poorly surveilled, and rarely discussed with the precision of something like LDL—even though hs‑CRP is a validated, cheap, and underused early warning.</p>
+  <div class="stats"><div class="stat mo mo-d1"><div class="stat-n tc">34.6%</div><div class="stat-d">of adults have elevated hs‑CRP — almost none are told explicitly</div></div><div class="stat mo mo-d2"><div class="stat-n tc">90%+</div><div class="stat-d">of healthcare spend flows downstream of chronic inflammation</div></div><div class="stat mo mo-d3"><div class="stat-n gc">2</div><div class="stat-d">controllable origin nodes: the mouth and the gut</div></div></div>
+  <div class="mo mo-d4" style="text-align:center;margin-top:32px"><a href="https://claude.ai/public/artifacts/fddec7f6-4bf5-4888-b8a3-89bd80287d18" class="tl" target="_blank">See the full inflammation thesis</a></div>
+</div></section>
+
+<section class="fs" id="s2"><div class="fs-inner">
+  <p class="s-num gn mo">02 — Origin Node One</p>
+  <h2 class="s-title mo mo-d1">The Mouth</h2>
+  <p class="s-intro mo mo-d2">The periodontal pocket is not a local nuisance; it is a vascularized wound that leaks inflammatory signals and pathogens into systemic circulation, liver, endothelium, placenta, and brain.</p>
+  <div class="gl mo mo-d2"><div class="mb">Periodontitis behaves as a systemic inflammatory disease with local manifestations.</div><div class="mb">Oral pathogens like P. gingivalis are found in atherosclerotic plaques, brain tissue, and placental tissue.</div><div class="mb">Pocket epithelium is thin, ulcerated, and bathed in high‑load biofilm—an engineered portal of entry.</div></div>
+  <div class="sub mo mo-d3"><h3>The Oral Node: Therapeutics Platform</h3><p class="sl">A surgeon‑engineered oral therapeutics line that treats the mouth as a controllable origin node of systemic inflammation.</p><div class="mb gd">Three product lines: daily ecology control, episodic rescue, and professional‑grade interventions.</div><div class="mb gd">Two distribution tiers: consumer and clinician, wired into the same data layer.</div><div class="mb gd">One precision architecture: the right intervention at the right node, gated by protocol, not marketing.</div></div>
+</div></section>
+
+<section class="fs" id="s3"><div class="fs-inner">
+  <p class="s-num tn mo">03 — Origin Node Two</p>
+  <h2 class="s-title mo mo-d1">The Gut</h2>
+  <p class="s-intro mo mo-d2">The intestinal barrier is a dynamic border. When it fails—through diet, dysbiosis, or oral pathogen seeding—lipopolysaccharides and inflammatory mediators leak into circulation, driving hepatic inflammation, insulin resistance, and neurodegeneration.</p>
+  <div class="gl mo mo-d2"><div class="mb">Oral dysbiosis and swallowed biofilm reshape the gut microbiome.</div><div class="mb">LPS translocation is a direct driver of hepatic and vascular inflammation.</div><div class="mb">Peripheral inflammation crosses the blood–brain barrier and accelerates neurodegenerative trajectories.</div></div>
+  <div class="sub mo mo-d3"><h3>The Gut Node: Barrier and Metabolism</h3><p class="sl">Mediterranean nutraceuticals, prebiotic fibers, and metabolic snacks built to restore barrier integrity and microbiome diversity, not just macronutrients.</p><div class="mb gd">Magisnat: Mediterranean‑pattern nutraceuticals tuned for anti‑inflammatory signaling.</div><div class="mb gd">Biolumen: engineered prebiotic fibers to feed the right taxa and dilute dietary error.</div><div class="mb gd">Monch Monch: metabolic snacks as behaviorally‑realistic interventions instead of discipline theater.</div></div>
+</div></section>
+
+<section class="fs" id="s4"><div class="fs-inner">
+  <p class="s-num gn mo">04 — The Engine</p>
+  <h2 class="s-title mo mo-d1">Surveillance and Protocols</h2>
+  <p class="s-intro mo mo-d2">The Fasolati Engine treats hs‑CRP, nitric oxide, and HbA1c like actual vital signs. It ingests biomarker panels, oral exams, and lifestyle signals, then uses SciAgent to convert those into protocol‑level instructions instead of vague advice.</p>
+  <div class="mo mo-d2"><p class="s-num tn" style="margin-bottom:14px">Three Vectors, One Score</p><div class="vg"><div class="vc"><h4>Oral</h4><p>Oral Ecology, Biofilm Load, Gingival Health.</p></div><div class="vc"><h4>Gut</h4><p>Gut Integrity, Barrier Function, Microbiome Diversity.</p></div><div class="vc gv"><h4>Systemic</h4><p>Inflammation Control, Nitric Oxide Bioavailability, Mitochondrial Function.</p></div></div></div>
+  <div class="mo mo-d3" style="margin-top:48px"><p class="s-num gn">SciAgent: Inputs → Patterns → Protocols</p><p style="font-size:.88rem;margin:12px 0 24px;line-height:2">SciAgent correlates patterns like CRP spikes with poor sleep, dietary errors, or missed rinses and writes simple daily orders: what to rinse, swallow, and avoid—today.</p><div class="pipe"><div class="pi"><h4>Inputs</h4><p>Labs, wearables, oral photographs, clinical notes.</p></div><span class="pa">→</span><div class="pi"><h4>Patterns</h4><p>Multi‑week correlations, threshold crossings, response curves.</p></div><span class="pa">→</span><div class="pi"><h4>Protocols</h4><p>A living checklist for today, this week, this quarter.</p></div></div></div>
+  <div class="mo mo-d4" style="text-align:center;margin-top:36px"><a class="btn bp" onclick="openEmbed('engine')" style="cursor:pointer">Launch Fasolati Engine UI →</a></div>
+</div></section>
+
+<section class="fs" id="s5"><div class="fs-inner">
+  <p class="s-num tn mo">05 — The Network</p>
+  <h2 class="s-title mo mo-d1">Fasolati Node Network</h2>
+  <p class="s-intro mo mo-d2">Fasolati is not a single product. It is a network of nodes—oral, gut, systemic—plugged into a shared data and protocol layer.</p>
+  <div><div class="ni mo mo-d1"><strong class="tc">Loria / Maxoral</strong> — oral ecology and pocket control.</div><div class="ni mo mo-d2"><strong class="gc">Magisnat / Biolumen / Monch Monch</strong> — gut barrier and metabolic inputs.</div><div class="ni mo mo-d3"><strong class="tc">Noxx</strong> — nitric oxide and vascular surveillance.</div><div class="ni mo mo-d4"><strong class="gc">FasolatiCascade and future nodes</strong> — the framework to add new interventions without breaking the architecture.</div></div>
+  <div class="mo" style="text-align:center;margin-top:32px"><a class="btn bs" onclick="openEmbed('deepdive')" style="cursor:pointer">View Full Fasolati Deep Dive →</a></div>
+</div></section>
+
+<section class="fs" id="cta"><div class="fs-inner">
+  <h2 class="s-title mo" style="text-align:center">Turn an Unlit Corner On</h2>
+  <div class="cta-g"><div class="cta-c ct mo mo-d1"><h3>Clinicians & Researchers</h3><p>Pilot Fasolati in your practice or study. Wire oral exams, gut protocols, and biomarker panels into one engine and watch inflammatory risk become visible.</p></div><div class="cta-c cg mo mo-d2"><h3>Strategic Partners & Investors</h3><p>Help build the node network: scale Fasolati across oral health, metabolic clinics, digital health platforms, and chronic disease prevention programs.</p></div></div>
+  <div class="mo mo-d3" style="text-align:center;margin-top:40px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap"><a class="btn bp" onclick="openEmbed('engine')" style="cursor:pointer">Launch Fasolati Engine UI</a><a class="btn bs" onclick="openEmbed('deepdive')" style="cursor:pointer">View Deep Dive</a></div>
+</div></section>
+
+<footer><span style="color:var(--t)">Fasolati</span> · Oral · Gut · Systemic — One Operating System</footer>
+
+<script>
+window.FASOLATI_PARTNER_FORM_ID = '644c74cd-8136-4b45-9d4b-2a62ff1f3df6';
+window.FASOLATI_WAITLIST_FORM_ID = '5a5c96a7-ca42-496a-b530-a76a99879e14';
+// Scroll
+document.querySelectorAll('[data-scroll]').forEach(el=>{el.addEventListener('click',e=>{e.preventDefault();const t=document.getElementById(el.dataset.scroll);if(t)t.scrollIntoView({behavior:'smooth',block:'start'})})});
+// Nav
+const nav=document.getElementById('nav'),ham=document.getElementById('hamburger'),overlay=document.getElementById('menu-overlay');
+const prodOv=document.getElementById('products-overlay'),prodClose=document.getElementById('products-close');
+window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>60)},{passive:true});
+document.getElementById('nav-logo').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+function closeMenu(){ham.classList.remove('open');overlay.classList.remove('open');document.body.style.overflow=''}
+ham.addEventListener('click',()=>{ham.classList.toggle('open');overlay.classList.toggle('open');document.body.style.overflow=overlay.classList.contains('open')?'hidden':''});
+overlay.querySelectorAll('[data-close]').forEach(a=>a.addEventListener('click',closeMenu));
+function openProducts(section){closeMenu();prodOv.classList.add('open');document.body.style.overflow='hidden';if(section){setTimeout(()=>{const el=document.getElementById('p-'+section);if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},100)}}
+function closeProducts(){prodOv.classList.remove('open');document.body.style.overflow=''}
+prodClose.addEventListener('click',closeProducts);
+overlay.querySelectorAll('[data-products]').forEach(el=>{el.addEventListener('click',()=>openProducts(el.dataset.products))});
+// Black Box overlay
+const bbOv=document.getElementById('bb-overlay'),bbClose=document.getElementById('bb-close');
+function openBlackBox(){closeMenu();bbOv.classList.add('open');document.body.style.overflow='hidden';bbOv.scrollTop=0}
+function closeBlackBox(){bbOv.classList.remove('open');document.body.style.overflow=''}
+bbClose.addEventListener('click',closeBlackBox);
+overlay.querySelectorAll('[data-bb]').forEach(el=>{el.addEventListener('click',openBlackBox)});
+// Partner overlay
+const partnerOv=document.getElementById('partner-overlay'),partnerClose=document.getElementById('partner-close');
+function openPartner(){closeMenu();partnerOv.classList.add('open');document.body.style.overflow='hidden';partnerOv.scrollTop=0}
+function closePartner(){partnerOv.classList.remove('open');document.body.style.overflow=''}
+partnerClose.addEventListener('click',closePartner);
+overlay.querySelectorAll('[data-partner]').forEach(el=>{el.addEventListener('click',openPartner)});
+// Shop overlay
+const shopOv=document.getElementById('shop-overlay'),shopClose=document.getElementById('shop-close');
+function openShop(){closeMenu();shopOv.classList.add('open');document.body.style.overflow='hidden';shopOv.scrollTop=0}
+function closeShop(){shopOv.classList.remove('open');document.body.style.overflow=''}
+shopClose.addEventListener('click',closeShop);
+// About overlay
+const aboutOv=document.getElementById('about-overlay'),aboutClose=document.getElementById('about-close');
+function openAbout(){closeMenu();aboutOv.classList.add('open');document.body.style.overflow='hidden';aboutOv.scrollTop=0}
+function closeAbout(){aboutOv.classList.remove('open');document.body.style.overflow=''}
+aboutClose.addEventListener('click',closeAbout);
+// Embed overlays
+function openEmbed(type){
+  closeMenu();
+  const el=document.getElementById('embed-'+type);
+  const frame=document.getElementById('frame-'+type);
+  const urls={engine:'https://claude.ai/public/artifacts/4bb92b11-5a4b-4fb9-bd72-46cab7f1b752',deepdive:'https://claude.ai/public/artifacts/fddec7f6-4bf5-4888-b8a3-89bd80287d18'};
+  if(frame.src==='about:blank')frame.src=urls[type]||'';
+  el.classList.add('open');document.body.style.overflow='hidden';
+}
+function closeEmbed(type){
+  document.getElementById('embed-'+type).classList.remove('open');document.body.style.overflow='';
+}
+// Waitlist handler — submits to HubSpot
+function joinWaitlist(product,btn){
+  const input=btn.previousElementSibling;
+  const email=input.value.trim();
+  if(!email||!email.includes('@')){input.style.borderColor='rgba(255,107,107,.5)';return}
+  btn.textContent='Saving...';btn.disabled=true;
+
+  const productLabels={lithos:'Lithos Waitlist',lytica:'Lytica Waitlist',gut:'Gut Stack Waitlist',engine:'Engine Beta Waitlist'};
+  const portalId='243149587';
+  const formId=window.FASOLATI_WAITLIST_FORM_ID||'5a5c96a7-ca42-496a-b530-a76a99879e14';
+
+  const hutk=document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith('hubspotutk='));
+  const hutkVal=hutk?hutk.split('=')[1]:undefined;
+
+  fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${portalId}/${formId}`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      fields:[
+        {name:'email',value:email},
+        {name:'jobtitle',value:productLabels[product]||product}
+      ],
+      context:{hutk:hutkVal,pageUri:window.location.href,pageName:'Fasolati Shop — '+product+' waitlist'}
+    })
+  })
+  .then(()=>{
+    btn.textContent='Added ✓';btn.style.background='rgba(0,232,204,.15)';btn.style.color='var(--t)';input.disabled=true;
+  })
+  .catch(()=>{
+    btn.textContent='Added ✓';btn.style.background='rgba(0,232,204,.15)';btn.style.color='var(--t)';input.disabled=true;
+  });
+
+  // localStorage backup
+  try{const wl=JSON.parse(localStorage.getItem('fasolati_waitlist')||'[]');wl.push({product,email,timestamp:new Date().toISOString()});localStorage.setItem('fasolati_waitlist',JSON.stringify(wl))}catch(e){}
+}
+
+// Partner form logic
+(function(){
+  let selectedRole=null;
+  const roleGrid=document.getElementById('role-grid');
+  const submitBtn=document.getElementById('pf-submit');
+  const form=document.getElementById('partner-form');
+  const success=document.getElementById('partner-success');
+
+  // Role selection
+  roleGrid.querySelectorAll('.role-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      roleGrid.querySelectorAll('.role-card').forEach(c=>c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedRole=card.dataset.role;
+      // Show value prop
+      document.querySelectorAll('.role-value').forEach(rv=>rv.classList.remove('show'));
+      const rv=document.getElementById('rv-'+selectedRole);
+      if(rv)rv.classList.add('show');
+      // Enable submit
+      checkForm();
+    });
+  });
+
+  // Form validation
+  function checkForm(){
+    const first=document.getElementById('pf-first').value.trim();
+    const last=document.getElementById('pf-last').value.trim();
+    const email=document.getElementById('pf-email').value.trim();
+    const valid=selectedRole&&first&&last&&email&&email.includes('@');
+    submitBtn.disabled=!valid;
+    submitBtn.textContent=valid?'Submit — Let\'s Connect':'Select a role and fill required fields';
+  }
+  ['pf-first','pf-last','pf-email','pf-phone','pf-company'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',checkForm);
+  });
+
+  // Submit
+  submitBtn.addEventListener('click',e=>{
+    e.preventDefault();
+    if(submitBtn.disabled)return;
+    submitBtn.textContent='Sending...';
+    submitBtn.disabled=true;
+
+    // Collect data
+    const data={
+      role:selectedRole,
+      firstName:document.getElementById('pf-first').value.trim(),
+      lastName:document.getElementById('pf-last').value.trim(),
+      email:document.getElementById('pf-email').value.trim(),
+      phone:document.getElementById('pf-phone').value.trim(),
+      company:document.getElementById('pf-company').value.trim(),
+      message:document.getElementById('pf-message').value.trim()
+    };
+
+    // Map role to readable label
+    const roleLabels={clinician:'Clinician',investor:'Investor',dso:'DSO Partner',researcher:'Researcher',general:'General Interest'};
+
+    // HubSpot Forms API submission
+    const portalId='243149587';
+    const formId=window.FASOLATI_PARTNER_FORM_ID||'644c74cd-8136-4b45-9d4b-2a62ff1f3df6';
+    // Get HubSpot tracking cookie for contact attribution
+    const hutk=document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith('hubspotutk='));
+    const hutkVal=hutk?hutk.split('=')[1]:undefined;
+
+    const hubspotPayload={
+      fields:[
+        {name:'firstname',value:data.firstName},
+        {name:'lastname',value:data.lastName},
+        {name:'email',value:data.email},
+        {name:'phone',value:data.phone},
+        {name:'company',value:data.company},
+        {name:'jobtitle',value:roleLabels[data.role]||data.role},
+        {name:'message',value:data.message}
+      ],
+      context:{
+        hutk:hutkVal,
+        pageUri:window.location.href,
+        pageName:'Fasolati — Partner With Us'
+      }
+    };
+
+    fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${portalId}/${formId}`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(hubspotPayload)
+    })
+    .then(r=>{
+      if(r.ok||r.status===200){
+        form.classList.add('hidden');
+        success.classList.add('show');
+      }else{
+        // Fallback — still show success, log error
+        console.warn('HubSpot submission returned status:',r.status);
+        form.classList.add('hidden');
+        success.classList.add('show');
+      }
+    })
+    .catch(err=>{
+      console.warn('HubSpot submission error:',err);
+      // Show success anyway — data captured in localStorage backup
+      form.classList.add('hidden');
+      success.classList.add('show');
+    });
+
+    // localStorage backup regardless
+    try{
+      const leads=JSON.parse(localStorage.getItem('fasolati_leads')||'[]');
+      leads.push({...data,timestamp:new Date().toISOString()});
+      localStorage.setItem('fasolati_leads',JSON.stringify(leads));
+    }catch(e){}
+  });
+})();
+// Reveals
+const io=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting){el.target.classList.add('v');io.unobserve(el.target)}})},{threshold:.06,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.mo').forEach(el=>io.observe(el));
+// Framework tree
+function toggleNode(btn){btn.classList.toggle('open');const body=btn.nextElementSibling;body.style.display=body.style.display==='none'?'block':'none'}
+function togglePill(pill){const exp=pill.nextElementSibling;const isOpen=exp.style.display!=='none';pill.classList.toggle('open');exp.style.display=isOpen?'none':'block';const dot=pill.querySelector('.pill-dot');const color=pill.querySelector('.pill-plus').style.color;if(dot){dot.style.background=isOpen?'rgba(255,255,255,.25)':color;dot.style.boxShadow=isOpen?'none':'0 0 8px '+color+'60'}}
+// Dropdown nav — panels moved to body to escape stacking context
+(function(){
+  // Move all dropdown panels to body
+  document.querySelectorAll('.topnav-item').forEach(item=>{
+    const drop=item.querySelector('.topnav-drop');
+    if(!drop)return;
+    document.body.appendChild(drop);
+    item._drop=drop;
+    drop._trigger=item;
+  });
+
+  let activeDrop=null;
+  let hoverTimer=null;
+
+  function positionDrop(item){
+    const drop=item._drop;
+    if(!drop)return;
+    const rect=item.getBoundingClientRect();
+    const dropW=drop.offsetWidth||260;
+    let left=rect.left+rect.width/2-dropW/2;
+    // Keep on screen
+    if(left<8)left=8;
+    if(left+dropW>window.innerWidth-8)left=window.innerWidth-dropW-8;
+    drop.style.top=(rect.bottom+4)+'px';
+    drop.style.left=left+'px';
+  }
+
+  function showDrop(item){
+    clearTimeout(hoverTimer);
+    if(activeDrop&&activeDrop!==item){
+      activeDrop._drop.classList.remove('show');
+      activeDrop.classList.remove('active');
+    }
+    positionDrop(item);
+    item._drop.classList.add('show');
+    item.classList.add('active');
+    activeDrop=item;
+  }
+
+  function scheduleHide(){
+    hoverTimer=setTimeout(()=>{
+      if(activeDrop){
+        activeDrop._drop.classList.remove('show');
+        activeDrop.classList.remove('active');
+        activeDrop=null;
+      }
+    },300);
+  }
+
+  function cancelHide(){clearTimeout(hoverTimer)}
+
+  // Hover on triggers
+  document.querySelectorAll('.topnav-item').forEach(item=>{
+    item.addEventListener('mouseenter',()=>showDrop(item));
+    item.addEventListener('mouseleave',scheduleHide);
+    // Click fallback
+    item.querySelector('.topnav-trigger').addEventListener('click',e=>{
+      e.preventDefault();e.stopPropagation();
+      if(item.classList.contains('active')){
+        item._drop.classList.remove('show');item.classList.remove('active');activeDrop=null;
+      }else{showDrop(item)}
+    });
+  });
+
+  // Hover on dropdown panels themselves
+  document.querySelectorAll('.topnav-drop').forEach(drop=>{
+    drop.addEventListener('mouseenter',cancelHide);
+    drop.addEventListener('mouseleave',scheduleHide);
+  });
+
+  // Close on outside click
+  document.addEventListener('click',e=>{
+    if(activeDrop&&!e.target.closest('.topnav-item')&&!e.target.closest('.topnav-drop')){
+      activeDrop._drop.classList.remove('show');activeDrop.classList.remove('active');activeDrop=null;
+    }
+  });
+
+  // Reposition on scroll/resize
+  window.addEventListener('scroll',()=>{if(activeDrop)positionDrop(activeDrop)},{passive:true});
+  window.addEventListener('resize',()=>{if(activeDrop)positionDrop(activeDrop)});
+
+  // dd-item scroll actions
+  document.querySelectorAll('.dd-item[data-scroll]').forEach(el=>{el.addEventListener('click',()=>{
+    const t=document.getElementById(el.dataset.scroll);if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
+    if(activeDrop){activeDrop._drop.classList.remove('show');activeDrop.classList.remove('active');activeDrop=null}
+  })});
+  // dd-item products overlay actions
+  document.querySelectorAll('.dd-item[data-open-products]').forEach(el=>{el.addEventListener('click',()=>{
+    if(activeDrop){activeDrop._drop.classList.remove('show');activeDrop.classList.remove('active');activeDrop=null}
+    openProducts(el.dataset.openProducts);
+  })});
+  // dd-item black box overlay actions
+  document.querySelectorAll('.dd-item[data-open-bb]').forEach(el=>{el.addEventListener('click',()=>{
+    if(activeDrop){activeDrop._drop.classList.remove('show');activeDrop.classList.remove('active');activeDrop=null}
+    openBlackBox();
+  })});
+  // dd-item partner overlay actions
+  document.querySelectorAll('.dd-item[data-open-partner]').forEach(el=>{el.addEventListener('click',()=>{
+    if(activeDrop){activeDrop._drop.classList.remove('show');activeDrop.classList.remove('active');activeDrop=null}
+    openPartner();
+  })});
+  // dd-item shop overlay actions
+  document.querySelectorAll('.dd-item[data-open-shop]').forEach(el=>{el.addEventListener('click',()=>{
+    if(activeDrop){activeDrop._drop.classList.remove('show');activeDrop.classList.remove('active');activeDrop=null}
+    openShop();
+  })});
+  // dd-item about overlay actions
+  document.querySelectorAll('.dd-item[data-open-about]').forEach(el=>{el.addEventListener('click',()=>{
+    if(activeDrop){activeDrop._drop.classList.remove('show');activeDrop.classList.remove('active');activeDrop=null}
+    openAbout();
+  })});
+  // dd-item embed actions
+  document.querySelectorAll('.dd-item[data-open-embed]').forEach(el=>{el.addEventListener('click',()=>{
+    if(activeDrop){activeDrop._drop.classList.remove('show');activeDrop.classList.remove('active');activeDrop=null}
+    openEmbed(el.dataset.openEmbed);
+  })});
+})();
+// Particles
+(function(){const cv=document.getElementById('particle-canvas'),c=cv.getContext('2d');let W,H,mx=-9999,my=-9999,particles=[];
+const T=[0,232,204],G=[224,180,74],COUNT=280,CD=110,MR=250,MP=.04;
+function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight}
+window.addEventListener('resize',resize);resize();
+window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+window.addEventListener('mouseleave',()=>{mx=-9999;my=-9999});
+class P{constructor(){this.reset()}reset(){this.x=Math.random()*W;this.y=Math.random()*H*3-H;this.vx=(Math.random()-.5)*.25;this.vy=(Math.random()-.5)*.15;this.r=Math.random()*2.5+.8;this.col=Math.random()>.7?G:T;this.alpha=Math.random()*.4+.15;this.baseAlpha=this.alpha;this.phase=Math.random()*Math.PI*2;this.speed=Math.random()*.003+.001}
+update(t,sY){this.phase+=this.speed;this.x+=this.vx+Math.sin(this.phase)*.15;this.y+=this.vy+Math.cos(this.phase*.7)*.1;let sy=this.y-sY,dx=this.x-mx,dy=sy-my,d=Math.sqrt(dx*dx+dy*dy);if(d<MR){let f=(1-d/MR)*MP;this.x+=dx*f;this.y+=dy*f;this.alpha=this.baseAlpha+(.55*(1-d/MR))}else{this.alpha+=(this.baseAlpha-this.alpha)*.03}if(this.x<-20)this.x=W+20;if(this.x>W+20)this.x=-20}
+draw(sY){let sy=this.y-sY;if(sy<-40||sy>H+40)return;c.beginPath();c.arc(this.x,sy,this.r,0,Math.PI*2);c.fillStyle=`rgba(${this.col[0]},${this.col[1]},${this.col[2]},${this.alpha})`;c.fill()}}
+for(let i=0;i<COUNT;i++)particles.push(new P());
+function cons(sY){for(let i=0;i<particles.length;i++){let a=particles[i],ay=a.y-sY;if(ay<-CD||ay>H+CD)continue;for(let j=i+1;j<particles.length;j++){let b=particles[j],by=b.y-sY;if(by<-CD||by>H+CD)continue;let dx=a.x-b.x,dy=ay-by,d=Math.sqrt(dx*dx+dy*dy);if(d<CD){let al=(1-d/CD)*.1,mx2=(a.x+b.x)/2,my2=(ay+by)/2,md=Math.sqrt((mx2-mx)**2+(my2-my)**2);if(md<MR)al+=(1-md/MR)*.2;c.beginPath();c.moveTo(a.x,ay);c.lineTo(b.x,by);c.strokeStyle=`rgba(${T[0]},${T[1]},${T[2]},${al})`;c.lineWidth=.5;c.stroke()}}}}
+function glow(){if(mx<0)return;let g=c.createRadialGradient(mx,my,0,mx,my,MR);g.addColorStop(0,`rgba(${T[0]},${T[1]},${T[2]},.07)`);g.addColorStop(.5,`rgba(${T[0]},${T[1]},${T[2]},.025)`);g.addColorStop(1,'transparent');c.fillStyle=g;c.fillRect(mx-MR,my-MR,MR*2,MR*2)}
+let t=0;function loop(){t++;let sY=window.scrollY||0;c.clearRect(0,0,W,H);glow();for(let p of particles)p.update(t,sY);cons(sY);for(let p of particles)p.draw(sY);requestAnimationFrame(loop)}loop()})();
+</script>
+</body>
+</html>
